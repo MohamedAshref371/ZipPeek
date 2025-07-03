@@ -47,7 +47,7 @@
             // 
             this.urlTextBox.Location = new System.Drawing.Point(12, 421);
             this.urlTextBox.Name = "urlTextBox";
-            this.urlTextBox.Size = new System.Drawing.Size(588, 20);
+            this.urlTextBox.Size = new System.Drawing.Size(614, 20);
             this.urlTextBox.TabIndex = 2;
             this.urlTextBox.Text = "write download link here ...";
             // 
@@ -57,7 +57,7 @@
             // 
             // onlineLoadBtn
             // 
-            this.onlineLoadBtn.Location = new System.Drawing.Point(606, 418);
+            this.onlineLoadBtn.Location = new System.Drawing.Point(632, 418);
             this.onlineLoadBtn.Name = "onlineLoadBtn";
             this.onlineLoadBtn.Size = new System.Drawing.Size(75, 23);
             this.onlineLoadBtn.TabIndex = 3;

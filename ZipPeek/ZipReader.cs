@@ -9,8 +9,11 @@ namespace ZipPeek
 {
     public class ZipEntry
     {
-        public string Path { get; set; }
-        public int LocalHeaderOffset { get; set; }
+        public long LocalHeaderOffset { get; set; }
+        public uint CompressedSize { get; set; }
+        public uint UncompressedSize { get; set; }
+        public ushort CompressionMethod { get; set; }
+        public string FileName { get; set; }
     }
 
     public static class ZipReader
@@ -68,7 +71,7 @@ namespace ZipPeek
 
                     entries.Add(new ZipEntry
                     {
-                        Path = fileName,
+                        FileName = fileName,
                         LocalHeaderOffset = localHeaderOffset
                     });
 
@@ -154,8 +157,11 @@ namespace ZipPeek
 
                 entries.Add(new ZipEntry
                 {
-                    Path = fileName,
-                    LocalHeaderOffset = localHeaderOffset
+                    FileName = fileName,
+                    LocalHeaderOffset = localHeaderOffset,
+                    CompressedSize = BitConverter.ToUInt32(cdBuffer, ptr + 20),
+                    UncompressedSize = BitConverter.ToUInt32(cdBuffer, ptr + 24),
+                    CompressionMethod = BitConverter.ToUInt16(cdBuffer, ptr + 10)
                 });
 
                 ptr += 46 + fileNameLength + extraLength + commentLength;

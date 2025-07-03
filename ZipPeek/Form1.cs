@@ -36,7 +36,7 @@ namespace ZipPeek
             }
 
             foreach (var entry in entries)
-                TreeViewHelper.AddToTree(entry.Path, entry);
+                TreeViewHelper.AddToTree(entry.FileName, entry);
         }
 
         private async void OnlineLoadBtn_Click(object sender, EventArgs e)
@@ -54,13 +54,13 @@ namespace ZipPeek
             }
 
             foreach (var entry in entries)
-                TreeViewHelper.AddToTree(entry.Path, entry);
+                TreeViewHelper.AddToTree(entry.FileName, entry);
         }
 
         private async void DownloadBtn_Click(object sender, EventArgs e)
         {
             if (treeZip.SelectedNode?.Tag is ZipEntry entry)
-                await PartialDownloader.DownloadRawEntryAsync(urlTextBox.Text, entry, "dl.zip");
+                await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "down");
         }
 
         private void TreeZip_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
