@@ -8,20 +8,31 @@ namespace ZipPeek
     {
         public static TreeView TreeView;
 
-        public static void AddToTree(string path, ZipEntry entry)
+        public static void AddToTree(ZipEntry entry)
         {
-            string[] parts = path.Split('/');
+            string[] parts = entry.FileName.Split('/');
             TreeNodeCollection current = TreeView.Nodes;
             TreeNode node = null;
 
-            foreach (string part in parts)
+            for (int i = 0; i < parts.Length; i++)
             {
+                string part = parts[i];
                 if (string.IsNullOrWhiteSpace(part)) continue;
+
+                bool isLastPart = (i == parts.Length - 1);
+                string nodeText = part;
+
+                if (isLastPart && entry.CompressedSize > 0)
+                {
+                    string compressed = FormatSize(entry.CompressedSize);
+                    string uncompressed = FormatSize(entry.UncompressedSize);
+                    nodeText = $"{part} ({compressed} / {uncompressed})";
+                }
 
                 TreeNode found = null;
                 foreach (TreeNode n in current)
                 {
-                    if (n.Text == part)
+                    if (n.Text.StartsWith(part))
                     {
                         found = n;
                         break;
@@ -30,7 +41,7 @@ namespace ZipPeek
 
                 if (found == null)
                 {
-                    found = new TreeNode(part);
+                    found = new TreeNode(nodeText);
                     current.Add(found);
                 }
 
@@ -41,6 +52,20 @@ namespace ZipPeek
             if (node != null)
                 node.Tag = entry;
         }
+
+        public static string FormatSize(long bytes)
+        {
+            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+            double len = bytes;
+            int order = 0;
+            while (len >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                len /= 1024;
+            }
+            return $"{len:0.##} {sizes[order]}";
+        }
+
 
         #region TreeZip_NodeMouseClick
         public static List<TreeNode> SelectedNodes = new List<TreeNode>();

@@ -36,7 +36,7 @@ namespace ZipPeek
             }
 
             foreach (var entry in entries)
-                TreeViewHelper.AddToTree(entry.FileName, entry);
+                TreeViewHelper.AddToTree(entry);
         }
 
         private async void OnlineLoadBtn_Click(object sender, EventArgs e)
@@ -54,7 +54,7 @@ namespace ZipPeek
             }
 
             foreach (var entry in entries)
-                TreeViewHelper.AddToTree(entry.FileName, entry);
+                TreeViewHelper.AddToTree(entry);
         }
 
         private async void DownloadBtn_Click(object sender, EventArgs e)
