@@ -61,7 +61,7 @@
             this.onlineLoadBtn.Name = "onlineLoadBtn";
             this.onlineLoadBtn.Size = new System.Drawing.Size(75, 23);
             this.onlineLoadBtn.TabIndex = 3;
-            this.onlineLoadBtn.Text = "online";
+            this.onlineLoadBtn.Text = "read";
             this.onlineLoadBtn.UseVisualStyleBackColor = true;
             this.onlineLoadBtn.Click += new System.EventHandler(this.OnlineLoadBtn_Click);
             // 
