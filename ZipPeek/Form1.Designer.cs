@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.treeZip = new System.Windows.Forms.TreeView();
-            this.loadBtn = new System.Windows.Forms.Button();
             this.urlTextBox = new System.Windows.Forms.TextBox();
             this.ofd = new System.Windows.Forms.OpenFileDialog();
             this.onlineLoadBtn = new System.Windows.Forms.Button();
+            this.downloadBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // treeZip
@@ -42,16 +42,6 @@
             this.treeZip.Size = new System.Drawing.Size(776, 400);
             this.treeZip.TabIndex = 0;
             this.treeZip.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeZip_NodeMouseClick);
-            // 
-            // loadBtn
-            // 
-            this.loadBtn.Location = new System.Drawing.Point(713, 418);
-            this.loadBtn.Name = "loadBtn";
-            this.loadBtn.Size = new System.Drawing.Size(75, 23);
-            this.loadBtn.TabIndex = 1;
-            this.loadBtn.Text = "local";
-            this.loadBtn.UseVisualStyleBackColor = true;
-            this.loadBtn.Click += new System.EventHandler(this.LoadBtn_Click);
             // 
             // urlTextBox
             // 
@@ -75,14 +65,24 @@
             this.onlineLoadBtn.UseVisualStyleBackColor = true;
             this.onlineLoadBtn.Click += new System.EventHandler(this.OnlineLoadBtn_Click);
             // 
+            // downloadBtn
+            // 
+            this.downloadBtn.Location = new System.Drawing.Point(713, 418);
+            this.downloadBtn.Name = "downloadBtn";
+            this.downloadBtn.Size = new System.Drawing.Size(75, 23);
+            this.downloadBtn.TabIndex = 4;
+            this.downloadBtn.Text = "download";
+            this.downloadBtn.UseVisualStyleBackColor = true;
+            this.downloadBtn.Click += new System.EventHandler(this.DownloadBtn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.downloadBtn);
             this.Controls.Add(this.onlineLoadBtn);
             this.Controls.Add(this.urlTextBox);
-            this.Controls.Add(this.loadBtn);
             this.Controls.Add(this.treeZip);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -94,10 +94,10 @@
         #endregion
 
         private System.Windows.Forms.TreeView treeZip;
-        private System.Windows.Forms.Button loadBtn;
         private System.Windows.Forms.TextBox urlTextBox;
         private System.Windows.Forms.OpenFileDialog ofd;
         private System.Windows.Forms.Button onlineLoadBtn;
+        private System.Windows.Forms.Button downloadBtn;
     }
 }
 

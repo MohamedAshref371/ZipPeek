@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ZipPeek
 {
@@ -35,7 +36,7 @@ namespace ZipPeek
             }
 
             foreach (var entry in entries)
-                TreeViewHelper.AddToTree(entry.Path, entry.LocalHeaderOffset);
+                TreeViewHelper.AddToTree(entry.Path, entry);
         }
 
         private async void OnlineLoadBtn_Click(object sender, EventArgs e)
@@ -53,7 +54,13 @@ namespace ZipPeek
             }
 
             foreach (var entry in entries)
-                TreeViewHelper.AddToTree(entry.Path, entry.LocalHeaderOffset);
+                TreeViewHelper.AddToTree(entry.Path, entry);
+        }
+
+        private async void DownloadBtn_Click(object sender, EventArgs e)
+        {
+            if (treeZip.SelectedNode?.Tag is ZipEntry entry)
+                await PartialDownloader.DownloadRawEntryAsync(urlTextBox.Text, entry, "dl.zip");
         }
 
         private void TreeZip_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -76,5 +83,6 @@ namespace ZipPeek
 
             //TreeViewHelper.LastNode = e.Node;
         }
+
     }
 }

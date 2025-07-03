@@ -8,7 +8,7 @@ namespace ZipPeek
     {
         public static TreeView TreeView;
 
-        public static void AddToTree(string path, int offset)
+        public static void AddToTree(string path, ZipEntry entry)
         {
             string[] parts = path.Split('/');
             TreeNodeCollection current = TreeView.Nodes;
@@ -39,7 +39,7 @@ namespace ZipPeek
             }
 
             if (node != null)
-                node.Tag = offset;
+                node.Tag = entry;
         }
 
         #region TreeZip_NodeMouseClick
