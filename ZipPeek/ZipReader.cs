@@ -21,67 +21,6 @@ namespace ZipPeek
         const uint EOCD_SIGNATURE = 0x06054b50;
         const uint CDFH_SIGNATURE = 0x02014b50;
 
-        public static List<ZipEntry> ReadZipEntries(string zipPath)
-        {
-            List<ZipEntry> entries = new List<ZipEntry>();
-
-            using (FileStream fs = new FileStream(zipPath, FileMode.Open, FileAccess.Read))
-            {
-                long fileLength = fs.Length;
-                const int maxEOCDSearch = 256 * 1024 /*65536*/ + 22;
-                int readSize = (int)Math.Min(fileLength, maxEOCDSearch);
-                fs.Seek(-readSize, SeekOrigin.End);
-
-                byte[] buffer = new byte[readSize];
-                fs.Read(buffer, 0, readSize);
-
-                int eocdOffset = -1;
-                for (int i = readSize - 22; i >= 0; i--)
-                {
-                    if (BitConverter.ToUInt32(buffer, i) == EOCD_SIGNATURE)
-                    {
-                        eocdOffset = i;
-                        break;
-                    }
-                }
-
-                if (eocdOffset == -1)
-                    throw new Exception("Not a valid ZIP file.");
-
-                int cdOffset = BitConverter.ToInt32(buffer, eocdOffset + 16);
-                int totalEntries = BitConverter.ToUInt16(buffer, eocdOffset + 10);
-                fs.Seek(cdOffset, SeekOrigin.Begin);
-
-                for (int i = 0; i < totalEntries; i++)
-                {
-                    byte[] header = new byte[46];
-                    fs.Read(header, 0, 46);
-
-                    if (BitConverter.ToUInt32(header, 0) != CDFH_SIGNATURE)
-                        throw new Exception("Invalid Central Directory header.");
-
-                    int fileNameLength = BitConverter.ToUInt16(header, 28);
-                    int extraLength = BitConverter.ToUInt16(header, 30);
-                    int commentLength = BitConverter.ToUInt16(header, 32);
-                    int localHeaderOffset = BitConverter.ToInt32(header, 42);
-
-                    byte[] fileNameBytes = new byte[fileNameLength];
-                    fs.Read(fileNameBytes, 0, fileNameLength);
-                    string fileName = Encoding.UTF8.GetString(fileNameBytes);
-
-                    entries.Add(new ZipEntry
-                    {
-                        FileName = fileName,
-                        LocalHeaderOffset = localHeaderOffset
-                    });
-
-                    fs.Seek(extraLength + commentLength, SeekOrigin.Current);
-                }
-            }
-
-            return entries;
-        }
-
         public static async Task<List<ZipEntry>> ReadZipEntriesAsync(string url)
         {
             const int maxEOCDSearch = 256 * 1024 /*65536*/ + 22;

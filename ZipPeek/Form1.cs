@@ -18,26 +18,6 @@ namespace ZipPeek
             TreeViewHelper.TreeView = treeZip;
         }
 
-        private void LoadBtn_Click(object sender, EventArgs e)
-        {
-            if (ofd.ShowDialog() != DialogResult.OK) return;
-
-            treeZip.Nodes.Clear();
-            List<ZipEntry> entries;
-            try
-            {
-                entries = ZipReader.ReadZipEntries(ofd.FileName);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error reading ZIP file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            foreach (var entry in entries)
-                TreeViewHelper.AddToTree(entry);
-        }
-
         private async void OnlineLoadBtn_Click(object sender, EventArgs e)
         {
             treeZip.Nodes.Clear();
@@ -74,23 +54,7 @@ namespace ZipPeek
 
         private void TreeZip_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            //treeZip.SelectedNode = e.Node;
-
-            //if (ModifierKeys == Keys.Control)
-            //{
-            //    TreeViewHelper.ToggleSelectNode(e.Node);
-            //}
-            //else if (ModifierKeys == Keys.Shift && TreeViewHelper.LastNode != null)
-            //{
-            //    TreeViewHelper.SelectRange(e.Node);
-            //}
-            //else
-            //{
-            //    TreeViewHelper.ClearSelection();
-            //    TreeViewHelper.AddToSelection(e.Node);
-            //}
-
-            //TreeViewHelper.LastNode = e.Node;
+            
         }
 
     }
