@@ -59,6 +59,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TreeViewHelper.cs" />
+    <Compile Include="Zip64Reader.cs" />
     <Compile Include="ZipExtractor.cs" />
     <Compile Include="ZipReader.cs" />
     <EmbeddedResource Include="Form1.resx">

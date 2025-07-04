@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ZipPeek
 {
@@ -46,6 +45,7 @@ namespace ZipPeek
             try
             {
                 entries = await ZipReader.ReadZipEntriesAsync(urlTextBox.Text);
+            
             }
             catch (Exception ex)
             {
@@ -59,8 +59,17 @@ namespace ZipPeek
 
         private async void DownloadBtn_Click(object sender, EventArgs e)
         {
-            if (treeZip.SelectedNode?.Tag is ZipEntry entry)
-                await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "down");
+            try
+            {
+                if (treeZip.SelectedNode?.Tag is ZipEntry entry)
+                    await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "down");
+            
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error extracting entry from remote ZIP file: {ex.Message}", "Extraction Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
         }
 
         private void TreeZip_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)

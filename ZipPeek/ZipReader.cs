@@ -9,11 +9,11 @@ namespace ZipPeek
 {
     public class ZipEntry
     {
-        public long LocalHeaderOffset { get; set; }
-        public uint CompressedSize { get; set; }
-        public uint UncompressedSize { get; set; }
-        public ushort CompressionMethod { get; set; }
         public string FileName { get; set; }
+        public long LocalHeaderOffset { get; set; }
+        public long CompressedSize { get; set; }
+        public long UncompressedSize { get; set; }
+        public ushort CompressionMethod { get; set; }
     }
 
     public static class ZipReader
