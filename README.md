@@ -2,6 +2,31 @@
 
 <br>
 
+## About This Project
+
+**ZipPeek** is a Windows desktop application built with C# and WinForms, designed to inspect the contents of remote ZIP files **without downloading the entire archive**.
+
+### 🎯 Project Goal
+
+The main goal of ZipPeek is to allow users to:
+- Browse the structure of a ZIP archive hosted online.
+- View file names, sizes, and paths without downloading the full file.
+- Extract specific files or folders on demand.
+- Save time and bandwidth when dealing with large remote ZIP files.
+
+It is especially useful in scenarios where:
+- You want to preview the contents of a downloadable ZIP before committing to a full download.
+- You're working with limited internet speed or storage space.
+- You need just one file from a large archive.
+
+### 🛠️ Development Notes
+
+This program was developed entirely with the help of **ChatGPT**, under my full supervision. I guided the process, made design and architecture decisions, and ensured all functionality met the intended use cases.
+
+ChatGPT acted as a coding assistant, helping with logic, implementation ideas, and refining the solution — but the direction, testing, and integration were entirely mine.
+
+<br>
+
 ## ✅ Features
 
 - 📦 Reads ZIP file metadata directly from a remote URL without downloading the full archive.
