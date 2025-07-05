@@ -35,7 +35,11 @@ namespace ZipPeek
                 MessageBox.Show($"Error reading ZIP file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            onlineLoadBtn.Enabled = true; downloadBtn.Enabled = true;
+            finally
+            {
+                onlineLoadBtn.Enabled = true;
+                downloadBtn.Enabled = true;
+            }
 
             foreach (var entry in entries)
                 TreeViewHelper.AddToTree(entry);
@@ -52,7 +56,6 @@ namespace ZipPeek
             catch (Exception ex)
             {
                 MessageBox.Show($"Error extracting entry from remote ZIP file: {ex.Message}", "Extraction Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
             onlineLoadBtn.Enabled = true; downloadBtn.Enabled = true;
         }

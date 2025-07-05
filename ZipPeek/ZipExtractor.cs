@@ -10,6 +10,8 @@ namespace ZipPeek
 
     public static class RemoteZipExtractor
     {
+        private static readonly HttpClient client = new HttpClient();
+        
         public static async Task ExtractRemoteEntryAsync(string url, ZipEntry entry, string outputFolder)
         {
             const int LocalHeaderFixedSize = 30;
@@ -18,13 +20,10 @@ namespace ZipPeek
 
             byte[] headerData;
 
-            using (var client = new HttpClient())
-            {
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
-                var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-                headerData = await response.Content.ReadAsByteArrayAsync();
-            }
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
+            var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            headerData = await response.Content.ReadAsByteArrayAsync();
 
             if (BitConverter.ToUInt32(headerData, 0) != 0x04034b50)
                 throw new Exception("Invalid local file header signature.");
