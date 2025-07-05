@@ -26,7 +26,7 @@ namespace ZipPeek
                 {
                     string compressed = FormatSize(entry.CompressedSize);
                     string uncompressed = FormatSize(entry.UncompressedSize);
-                    nodeText = $"{part} ({compressed} / {uncompressed})";
+                    nodeText = $"{(entry.IsEncrypted ? "🔒" : "")} {part} ({compressed} / {uncompressed})";
                 }
 
                 TreeNode found = null;
