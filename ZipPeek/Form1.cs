@@ -10,6 +10,9 @@ namespace ZipPeek
         {
             InitializeComponent();
             TreeViewHelper.TreeView = treeZip;
+            string[] versionParts = Application.ProductVersion.Split('.');
+            Array.Resize(ref versionParts, 2);
+            Text = $"{Application.ProductName} v{string.Join(".", versionParts)} - View ZIP Files Online";
         }
 
         private async void OnlineLoadBtn_Click(object sender, EventArgs e)
@@ -46,6 +49,8 @@ namespace ZipPeek
             {
                 if (treeZip.SelectedNode?.Tag is ZipEntry entry)
                     await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "downloadFolder");
+                else 
+                    MessageBox.Show("Please select a ZIP entry to download.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
