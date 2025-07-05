@@ -11,7 +11,7 @@ namespace ZipPeek
     public static class RemoteZipExtractor
     {
         private static readonly HttpClient client = new HttpClient();
-        
+
         public static async Task ExtractRemoteEntryAsync(string url, ZipEntry entry, string outputFolder)
         {
             const int LocalHeaderFixedSize = 30;
@@ -41,13 +41,10 @@ namespace ZipPeek
 
             byte[] compressedData;
 
-            using (var client = new HttpClient())
-            {
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(dataStart, dataEnd);
-                var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-                compressedData = await response.Content.ReadAsByteArrayAsync();
-            }
+            request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(dataStart, dataEnd);
+            response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            compressedData = await response.Content.ReadAsByteArrayAsync();
 
             byte[] outputData;
 
