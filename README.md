@@ -21,7 +21,7 @@ It is especially useful in scenarios where:
 
 ### 🛠️ Development Notes
 
-This program was developed entirely with the help of **ChatGPT**, under my full supervision. I guided the process, made design and architecture decisions, and ensured all functionality met the intended use cases.
+This program was developed with the help of **ChatGPT**, under my full supervision. I guided the process, made design and architecture decisions, and ensured all functionality met the intended use cases.
 
 ChatGPT acted as a coding assistant, helping with logic, implementation ideas, and refining the solution — but the direction, testing, and integration were entirely mine.
 
@@ -35,13 +35,13 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 - 📏 Shows both compressed and uncompressed sizes next to each file.
 - ⚡ Uses HTTP Range Requests to download only the required parts (EOCD + Central Directory).
 - 📥 Supports downloading **individual files** from the ZIP archive remotely with high precision.
+- 🧱 Fully supports **ZIP64 format** (archives larger than 4GB or with more than 65535 entries).
 - 💡 Lightweight and efficient, ideal for cloud-based ZIP inspection and partial extraction tools.
 
 <br>
 
 ## ⚠️ Limitations
 
-- ❌ Does not support ZIP64 format (files larger than 4GB or archives with more than 65535 entries).
 - ❌ Does not support extracting folders or multiple files at once.
 - ❌ Cannot read encrypted or password-protected ZIP archives.
 - ⚠️ Will not work if the remote server does not support HTTP Range requests.
