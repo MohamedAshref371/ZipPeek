@@ -90,26 +90,65 @@ namespace ZipPeek
                 uint sig = BitConverter.ToUInt32(data, ptr);
                 if (sig != 0x02014b50) break;
 
-                ushort generalPurposeFlag = BitConverter.ToUInt16(data, ptr + 8);
-                bool isEncrypted = (generalPurposeFlag & 0x0001) != 0;
-
+                ushort generalPurpose = BitConverter.ToUInt16(data, ptr + 8);
+                ushort compression = BitConverter.ToUInt16(data, ptr + 10);
+                uint compressedSize = BitConverter.ToUInt32(data, ptr + 20);
+                uint uncompressedSize = BitConverter.ToUInt32(data, ptr + 24);
                 ushort fileNameLen = BitConverter.ToUInt16(data, ptr + 28);
                 ushort extraLen = BitConverter.ToUInt16(data, ptr + 30);
                 ushort commentLen = BitConverter.ToUInt16(data, ptr + 32);
-
-                uint compressedSize = BitConverter.ToUInt32(data, ptr + 20);
-                uint uncompressedSize = BitConverter.ToUInt32(data, ptr + 24);
-                ushort compression = BitConverter.ToUInt16(data, ptr + 10);
-                uint localHeaderOffset = BitConverter.ToUInt32(data, ptr + 42);
+                uint localHeaderOffsetRaw = BitConverter.ToUInt32(data, ptr + 42);
 
                 string fileName = Encoding.UTF8.GetString(data, ptr + 46, fileNameLen);
+                byte[] extraField = new byte[extraLen];
+                Array.Copy(data, ptr + 46 + fileNameLen, extraField, 0, extraLen);
+
+                bool isEncrypted = (generalPurpose & 0x0001) != 0;
+
+                long compressed = compressedSize;
+                long uncompressed = uncompressedSize;
+                long localHeaderOffset = localHeaderOffsetRaw;
+
+                // ⬇️ تحقق من ZIP64 extra field إن وجد
+                if (compressedSize == 0xFFFFFFFF || uncompressedSize == 0xFFFFFFFF || localHeaderOffsetRaw == 0xFFFFFFFF)
+                {
+                    int i = 0;
+                    while (i + 4 <= extraField.Length)
+                    {
+                        ushort headerId = BitConverter.ToUInt16(extraField, i);
+                        ushort dataSize = BitConverter.ToUInt16(extraField, i + 2);
+
+                        if (headerId == 0x0001)
+                        {
+                            int offset = 0;
+                            if (uncompressedSize == 0xFFFFFFFF)
+                            {
+                                uncompressed = BitConverter.ToInt64(extraField, i + 4 + offset);
+                                offset += 8;
+                            }
+                            if (compressedSize == 0xFFFFFFFF)
+                            {
+                                compressed = BitConverter.ToInt64(extraField, i + 4 + offset);
+                                offset += 8;
+                            }
+                            if (localHeaderOffsetRaw == 0xFFFFFFFF)
+                            {
+                                localHeaderOffset = BitConverter.ToInt64(extraField, i + 4 + offset);
+                                offset += 8;
+                            }
+                            break;
+                        }
+
+                        i += 4 + dataSize;
+                    }
+                }
 
                 list.Add(new ZipEntry
                 {
                     FileName = fileName,
-                    CompressedSize = compressedSize,
-                    UncompressedSize = uncompressedSize,
                     CompressionMethod = compression,
+                    CompressedSize = compressed,
+                    UncompressedSize = uncompressed,
                     LocalHeaderOffset = localHeaderOffset,
                     IsEncrypted = isEncrypted,
                 });
