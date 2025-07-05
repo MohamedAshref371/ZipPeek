@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace ZipPeek
 {
@@ -21,13 +22,13 @@ namespace ZipPeek
             return 0;
         }
 
-        public static async Task ExtractRemoteEntryAsync(string url, ZipEntry entry, string outputFolder)
+        public static async Task ExtractRemoteEntryAsync(string url, ZipEntry entry, string outputFolder, string password = null)
         {
             const int LocalHeaderFixedSize = 30;
             long headerStart = entry.LocalHeaderOffset;
             long headerEnd = headerStart + LocalHeaderFixedSize + 2048;
 
-            // 1. تحميل Local Header
+            // تحميل Local Header
             var headerRequest = new HttpRequestMessage(HttpMethod.Get, url);
             headerRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
             var headerResponse = await client.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead);
@@ -40,6 +41,7 @@ namespace ZipPeek
             if (headerData.Length < sigOffset + 30)
                 throw new Exception("Incomplete local header.");
 
+            ushort generalPurposeFlag = BitConverter.ToUInt16(headerData, sigOffset + 6);
             ushort fileNameLength = BitConverter.ToUInt16(headerData, sigOffset + 26);
             ushort extraFieldLength = BitConverter.ToUInt16(headerData, sigOffset + 28);
             int headerTotalLength = 30 + fileNameLength + extraFieldLength;
@@ -48,25 +50,58 @@ namespace ZipPeek
             string outputPath = Path.Combine(outputFolder, fileName);
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
 
-            // 2. تخطي الملفات المشفّرة
-            if (entry.IsEncrypted)
-                throw new Exception($"⛔ Skipping encrypted file: {fileName}");
-            
-            // 3. تحميل البيانات المضغوطة
-            long fullStart = headerStart + sigOffset;
-            long fullEnd = fullStart + headerTotalLength + entry.CompressedSize - 1;
+            bool hasDataDescriptor = (generalPurposeFlag & 0x0008) != 0;
 
-            var dataRequest = new HttpRequestMessage(HttpMethod.Get, url);
-            dataRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullStart, fullEnd);
-            var dataResponse = await client.SendAsync(dataRequest, HttpCompletionOption.ResponseHeadersRead);
-            byte[] fullFileData = await dataResponse.Content.ReadAsByteArrayAsync();
+            if (entry.IsEncrypted)
+            {
+                if (string.IsNullOrEmpty(password))
+                    throw new Exception($"⛔ File '{fileName}' is encrypted. Password is required.");
+
+                const int encryptionHeaderSize = 12;
+                long fullStart = headerStart;
+                long extraBytes = 64; // تحسبًا لوجود Data Descriptor
+
+                long fullEnd = fullStart + headerTotalLength + encryptionHeaderSize + entry.CompressedSize + extraBytes - 1;
+
+                var dataRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                dataRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullStart, fullEnd);
+                var dataResponse = await client.SendAsync(dataRequest, HttpCompletionOption.ResponseHeadersRead);
+                byte[] fullEncryptedData = await dataResponse.Content.ReadAsByteArrayAsync();
+
+                if (fullEncryptedData.Length < sigOffset + headerTotalLength + encryptionHeaderSize)
+                    throw new Exception("Downloaded encrypted data is smaller than expected.");
+
+                // مهم جدًا: لا تقص البيانات، مرر الـ stream بالكامل من بداية الـ LocalHeader
+                using (var inputStream = new MemoryStream(fullEncryptedData, sigOffset, fullEncryptedData.Length - sigOffset))
+                using (var zipStream = new ZipInputStream(inputStream))
+                {
+                    zipStream.Password = password;
+                    var zipEntry = zipStream.GetNextEntry() ?? throw new Exception($"⚠️ Could not open encrypted file '{fileName}'. Possibly AES encryption (not supported).");
+                    using (var output = new MemoryStream())
+                    {
+                        await zipStream.CopyToAsync(output);
+                        File.WriteAllBytes(outputPath, output.ToArray());
+                    }
+                }
+
+                return;
+            }
+
+            // تحميل الملف غير المشفر
+            long fullDataStart = headerStart + sigOffset;
+            long fullDataEnd = fullDataStart + headerTotalLength + entry.CompressedSize + (hasDataDescriptor ? 20 : 0) + 32 - 1;
+
+            var normalRequest = new HttpRequestMessage(HttpMethod.Get, url);
+            normalRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullDataStart, fullDataEnd);
+            var normalResponse = await client.SendAsync(normalRequest, HttpCompletionOption.ResponseHeadersRead);
+            byte[] fullFileData = await normalResponse.Content.ReadAsByteArrayAsync();
 
             if (fullFileData.Length < headerTotalLength + entry.CompressedSize)
                 throw new Exception("Downloaded data is smaller than expected.");
 
             byte[] outputData;
 
-            if (entry.CompressionMethod == 0) // Stored (no compression)
+            if (entry.CompressionMethod == 0) // Stored
             {
                 outputData = new byte[entry.CompressedSize];
                 Array.Copy(fullFileData, headerTotalLength, outputData, 0, entry.CompressedSize);

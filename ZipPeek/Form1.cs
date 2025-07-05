@@ -48,7 +48,12 @@ namespace ZipPeek
             try
             {
                 if (treeZip.SelectedNode?.Tag is ZipEntry entry)
-                    await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "downloadFolder");
+                {
+                    if (entry.IsEncrypted && passwordTextBox.Text == "")
+                        MessageBox.Show("This file is encrypted. Please enter the password.", "Password Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
+                        await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "downloadFolder", entry.IsEncrypted ? passwordTextBox.Text : null);
+                }
                 else 
                     MessageBox.Show("Please select a ZIP entry to download.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
