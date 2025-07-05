@@ -1,4 +1,4 @@
-# ZipPeek v1.0
+# ZipPeek v1.3
 
 ## About This Project
 
@@ -33,6 +33,7 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 - 📏 Shows both compressed and uncompressed sizes next to each file.
 - ⚡ Uses HTTP Range Requests to download only the required parts (EOCD + Central Directory).
 - 📥 Supports downloading **individual files** from the ZIP archive remotely with high precision.
+- 🔐 Supports extracting **ZipCrypto-encrypted files** using a user-provided password.
 - 🧱 Fully supports **ZIP64 format** (archives larger than 4GB or with more than 65535 entries).
 - 💡 Lightweight and efficient, ideal for cloud-based ZIP inspection and partial extraction tools.
 
@@ -41,7 +42,7 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 ## ⚠️ Limitations
 
 - ❌ Does not support extracting folders or multiple files at once.
-- ❌ Cannot read encrypted or password-protected ZIP archives.
+- ⚠️ Only **ZipCrypto** encryption is supported. Archives using **AES encryption** are not currently supported.
 - ⚠️ Will not work if the remote server does not support HTTP Range requests.
 - ⚠️ Only standard ZIP format is supported (no split archives, multi-disk, or advanced compression).
 - ⚠️ TreeView UI does not yet support search, filter, or sorting (planned in future versions).
