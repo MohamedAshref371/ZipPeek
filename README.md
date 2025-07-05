@@ -1,7 +1,5 @@
 # ZipPeek v1.0
 
-<br>
-
 ## About This Project
 
 **ZipPeek** is a Windows desktop application built with C# and WinForms, designed to inspect the contents of remote ZIP files **without downloading the entire archive**.
