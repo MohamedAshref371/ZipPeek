@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ZipPeek
@@ -28,7 +22,7 @@ namespace ZipPeek
             onlineLoadBtn.Enabled = false; downloadBtn.Enabled = false;
             try
             {
-                entries = await ZipReader.ReadZipEntriesAsync(urlTextBox.Text);
+                entries = await RemoteZipReader.ReadAsync(urlTextBox.Text);
             }
             catch (Exception ex)
             {
@@ -51,7 +45,7 @@ namespace ZipPeek
             try
             {
                 if (treeZip.SelectedNode?.Tag is ZipEntry entry)
-                    await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "down");
+                    await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "downloadFolder");
             }
             catch (Exception ex)
             {
