@@ -1,4 +1,4 @@
-# ZipPeek v1.3
+# ZipPeek v1.5
 
 ## About This Project
 
