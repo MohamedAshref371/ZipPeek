@@ -105,7 +105,11 @@ namespace ZipPeek
                 ushort commentLen = BitConverter.ToUInt16(data, ptr + 32);
                 uint localHeaderOffsetRaw = BitConverter.ToUInt32(data, ptr + 42);
 
-                string fileName = Encoding.UTF8.GetString(data, ptr + 46, fileNameLen);
+                // ✔️ استخدام الترميز الصحيح
+                bool isUtf8 = (generalPurpose & (1 << 11)) != 0;
+                Encoding fileNameEncoding = isUtf8 ? Encoding.UTF8 : Encoding.GetEncoding(437);
+                string fileName = fileNameEncoding.GetString(data, ptr + 46, fileNameLen);
+
                 byte[] extraField = new byte[extraLen];
                 Array.Copy(data, ptr + 46 + fileNameLen, extraField, 0, extraLen);
 
