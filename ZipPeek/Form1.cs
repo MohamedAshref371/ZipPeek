@@ -49,6 +49,9 @@ namespace ZipPeek
                     return;
                 }
 
+                statusLabel.Text = "🌲 Building file tree...";
+                Application.DoEvents();
+
                 treeZip.BeginUpdate();
                 foreach (var entry in entries)
                     TreeViewHelper.AddToTree(entry);
