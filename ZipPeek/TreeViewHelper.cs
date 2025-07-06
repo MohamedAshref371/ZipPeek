@@ -1,54 +1,61 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace ZipPeek
 {
     public static class TreeViewHelper
     {
         public static TreeView TreeView;
+        private static readonly Dictionary<string, TreeNode> NodeCache = new Dictionary<string, TreeNode>();
 
         public static void AddToTree(ZipEntry entry)
         {
-            string[] parts = entry.FileName.Split('/');
+            var parts = entry.FileName.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             TreeNodeCollection current = TreeView.Nodes;
-            TreeNode node = null;
 
             for (int i = 0; i < parts.Length; i++)
             {
                 string part = parts[i];
-                if (string.IsNullOrWhiteSpace(part)) continue;
+                bool isLast = (i == parts.Length - 1);
+                bool isFolder = entry.FileName.EndsWith("/") && isLast;
+                string pathSoFar = string.Join("/", parts, 0, i + 1);
 
-                bool isLastPart = (i == parts.Length - 1);
-                string nodeText = part;
+                if (NodeCache.TryGetValue(pathSoFar, out TreeNode found))
+                {
+                    current = found.Nodes;
+                    continue;
+                }
 
-                if (isLastPart && entry.CompressedSize > 0)
+                string displayName;
+
+                if (isFolder)
+                {
+                    displayName = $"📁 {part} (empty)";
+                }
+                else if (isLast)
                 {
                     string compressed = FormatSize(entry.CompressedSize);
                     string uncompressed = FormatSize(entry.UncompressedSize);
-                    nodeText = $"{(entry.IsEncrypted ? "🔒" : "")} {part} ({compressed} / {uncompressed}) | {entry.LastModified}";
+                    string modified = entry.LastModified.ToString("yyyy-MM-dd HH:mm");
+                    string icon = entry.IsEncrypted ? "🔒📄" : "📄";
+                    displayName = $"{icon} {part} ({compressed} / {uncompressed}) | {modified}";
                 }
-
-                TreeNode found = null;
-                foreach (TreeNode n in current)
+                else
                 {
-                    if (n.Text.StartsWith(part))
-                    {
-                        found = n;
-                        break;
-                    }
+                    displayName = $"📁 {part}";
                 }
 
-                if (found == null)
+                TreeNode newNode = new TreeNode(displayName)
                 {
-                    found = new TreeNode(nodeText);
-                    current.Add(found);
-                }
+                    Name = part,
+                    Tag = (isLast && !isFolder) ? entry : null
+                };
 
-                node = found;
-                current = node.Nodes;
+                current.Add(newNode);
+                NodeCache[pathSoFar] = newNode;
+                current = newNode.Nodes;
             }
-
-            if (node != null)
-                node.Tag = entry;
         }
 
         public static string FormatSize(long bytes)

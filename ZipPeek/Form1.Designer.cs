@@ -41,17 +41,19 @@
             // 
             // treeZip
             // 
+            this.treeZip.Font = new System.Drawing.Font("Tahoma", 10F);
             this.treeZip.Location = new System.Drawing.Point(12, 12);
             this.treeZip.Name = "treeZip";
+            this.treeZip.PathSeparator = "/";
             this.treeZip.Size = new System.Drawing.Size(776, 400);
             this.treeZip.TabIndex = 0;
             this.treeZip.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeZip_NodeMouseClick);
             // 
             // urlTextBox
             // 
-            this.urlTextBox.Location = new System.Drawing.Point(83, 421);
+            this.urlTextBox.Location = new System.Drawing.Point(98, 421);
             this.urlTextBox.Name = "urlTextBox";
-            this.urlTextBox.Size = new System.Drawing.Size(705, 20);
+            this.urlTextBox.Size = new System.Drawing.Size(690, 20);
             this.urlTextBox.TabIndex = 2;
             // 
             // ofd
@@ -60,36 +62,39 @@
             // 
             // onlineLoadBtn
             // 
-            this.onlineLoadBtn.Location = new System.Drawing.Point(632, 447);
+            this.onlineLoadBtn.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.onlineLoadBtn.Location = new System.Drawing.Point(624, 446);
             this.onlineLoadBtn.Name = "onlineLoadBtn";
-            this.onlineLoadBtn.Size = new System.Drawing.Size(75, 23);
+            this.onlineLoadBtn.Size = new System.Drawing.Size(75, 32);
             this.onlineLoadBtn.TabIndex = 3;
-            this.onlineLoadBtn.Text = "read";
+            this.onlineLoadBtn.Text = "Read";
             this.onlineLoadBtn.UseVisualStyleBackColor = true;
             this.onlineLoadBtn.Click += new System.EventHandler(this.OnlineLoadBtn_Click);
             // 
             // downloadBtn
             // 
-            this.downloadBtn.Location = new System.Drawing.Point(713, 447);
+            this.downloadBtn.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.downloadBtn.Location = new System.Drawing.Point(705, 446);
             this.downloadBtn.Name = "downloadBtn";
-            this.downloadBtn.Size = new System.Drawing.Size(75, 23);
+            this.downloadBtn.Size = new System.Drawing.Size(83, 32);
             this.downloadBtn.TabIndex = 4;
-            this.downloadBtn.Text = "download";
+            this.downloadBtn.Text = "Download";
             this.downloadBtn.UseVisualStyleBackColor = true;
             this.downloadBtn.Click += new System.EventHandler(this.DownloadBtn_Click);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 452);
+            this.label1.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.label1.Location = new System.Drawing.Point(9, 452);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(65, 13);
+            this.label1.Size = new System.Drawing.Size(83, 17);
             this.label1.TabIndex = 5;
             this.label1.Text = "PassWord : ";
             // 
             // passwordTextBox
             // 
-            this.passwordTextBox.Location = new System.Drawing.Point(83, 449);
+            this.passwordTextBox.Location = new System.Drawing.Point(98, 451);
             this.passwordTextBox.Name = "passwordTextBox";
             this.passwordTextBox.Size = new System.Drawing.Size(269, 20);
             this.passwordTextBox.TabIndex = 6;
@@ -97,9 +102,10 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(25, 424);
+            this.label2.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.label2.Location = new System.Drawing.Point(12, 424);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 13);
+            this.label2.Size = new System.Drawing.Size(45, 17);
             this.label2.TabIndex = 7;
             this.label2.Text = "Link : ";
             // 

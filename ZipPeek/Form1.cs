@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace ZipPeek
@@ -38,6 +39,7 @@ namespace ZipPeek
                 downloadBtn.Enabled = true;
             }
 
+            entries = entries.OrderByDescending(ze => ze.FileName, StringComparer.OrdinalIgnoreCase).ToList();
             foreach (var entry in entries)
                 TreeViewHelper.AddToTree(entry);
         }
