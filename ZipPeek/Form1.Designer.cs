@@ -118,6 +118,7 @@
             this.statusLabel.Size = new System.Drawing.Size(495, 23);
             this.statusLabel.TabIndex = 8;
             this.statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.statusLabel.DoubleClick += new System.EventHandler(this.StatusLabel_DoubleClick);
             // 
             // Form1
             // 

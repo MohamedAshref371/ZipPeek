@@ -115,6 +115,11 @@ namespace ZipPeek
             downloadBtn.Enabled = enabled;
         }
 
+        private void StatusLabel_DoubleClick(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/MohamedAshref371/ZipPeek/releases/latest");
+        }
+
         private void TreeZip_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
 
