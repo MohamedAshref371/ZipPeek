@@ -54,7 +54,7 @@
             // 
             this.urlTextBox.Location = new System.Drawing.Point(98, 421);
             this.urlTextBox.Name = "urlTextBox";
-            this.urlTextBox.Size = new System.Drawing.Size(690, 20);
+            this.urlTextBox.Size = new System.Drawing.Size(520, 20);
             this.urlTextBox.TabIndex = 2;
             // 
             // ofd
@@ -64,7 +64,7 @@
             // onlineLoadBtn
             // 
             this.onlineLoadBtn.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.onlineLoadBtn.Location = new System.Drawing.Point(624, 446);
+            this.onlineLoadBtn.Location = new System.Drawing.Point(624, 415);
             this.onlineLoadBtn.Name = "onlineLoadBtn";
             this.onlineLoadBtn.Size = new System.Drawing.Size(75, 32);
             this.onlineLoadBtn.TabIndex = 3;
@@ -75,7 +75,7 @@
             // downloadBtn
             // 
             this.downloadBtn.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.downloadBtn.Location = new System.Drawing.Point(705, 446);
+            this.downloadBtn.Location = new System.Drawing.Point(705, 415);
             this.downloadBtn.Name = "downloadBtn";
             this.downloadBtn.Size = new System.Drawing.Size(83, 32);
             this.downloadBtn.TabIndex = 4;
@@ -97,7 +97,7 @@
             // 
             this.passwordTextBox.Location = new System.Drawing.Point(98, 451);
             this.passwordTextBox.Name = "passwordTextBox";
-            this.passwordTextBox.Size = new System.Drawing.Size(269, 20);
+            this.passwordTextBox.Size = new System.Drawing.Size(189, 20);
             this.passwordTextBox.TabIndex = 6;
             // 
             // label2
@@ -113,9 +113,9 @@
             // statusLabel
             // 
             this.statusLabel.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.statusLabel.Location = new System.Drawing.Point(373, 451);
+            this.statusLabel.Location = new System.Drawing.Point(293, 451);
             this.statusLabel.Name = "statusLabel";
-            this.statusLabel.Size = new System.Drawing.Size(245, 23);
+            this.statusLabel.Size = new System.Drawing.Size(495, 23);
             this.statusLabel.TabIndex = 8;
             this.statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 

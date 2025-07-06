@@ -27,9 +27,14 @@ namespace ZipPeek
                 return;
             }
 
+            if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+            {
+                statusLabel.Text = "⚠️ No internet connection.";
+                return;
+            }
+
             treeZip.Nodes.Clear();
-            onlineLoadBtn.Enabled = false;
-            downloadBtn.Enabled = false;
+            SetUiState(false);
             statusLabel.Text = "📡 Connecting... downloading central directory...";
 
             List<ZipEntry> entries;
@@ -38,20 +43,27 @@ namespace ZipPeek
                 entries = await RemoteZipReader.ReadAsync(urlTextBox.Text);
                 entries = entries.OrderByDescending(ze => ze.FileName, StringComparer.OrdinalIgnoreCase).ToList();
 
+                if (entries.Count == 0)
+                {
+                    statusLabel.Text = "ℹ️ ZIP archive is empty.";
+                    return;
+                }
+
+                treeZip.BeginUpdate();
                 foreach (var entry in entries)
                     TreeViewHelper.AddToTree(entry);
+                treeZip.EndUpdate();
 
-                statusLabel.Text = $"✅ Loaded {entries.Count} entries successfully.";
+                statusLabel.Text = $"✅ Loaded {entries.Count:N0} file{(entries.Count == 1 ? "" : "s")}.";
             }
             catch (Exception ex)
             {
                 statusLabel.Text = "❌ Failed to load ZIP file.";
-                MessageBox.Show($"Error reading ZIP file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error reading ZIP file:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
-                onlineLoadBtn.Enabled = true;
-                downloadBtn.Enabled = true;
+                SetUiState(true);
             }
         }
 
@@ -61,13 +73,13 @@ namespace ZipPeek
             if (node == null || !(node.Tag is ZipEntry))
             {
                 statusLabel.Text = "⚠️ Please select a file to download.";
-                MessageBox.Show("Please select a ZIP entry to download.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            ZipEntry entry = (ZipEntry)node.Tag;
 
-            onlineLoadBtn.Enabled = false;
-            downloadBtn.Enabled = false;
+            ZipEntry entry = (ZipEntry)node.Tag;
+            string shortName = entry.FileName.Split('/').Last();
+
+            SetUiState(false);
 
             try
             {
@@ -78,26 +90,31 @@ namespace ZipPeek
                 }
                 else
                 {
-                    statusLabel.Text = $"⬇️ Downloading: {entry.FileName} ...";
+                    statusLabel.Text = $"⬇️ Downloading: {shortName} ...";
                     await RemoteZipExtractor.ExtractRemoteEntryAsync( urlTextBox.Text, entry, "downloadFolder", entry.IsEncrypted ? passwordTextBox.Text : null );
-                    statusLabel.Text = $"✅ Downloaded: {entry.FileName}";
+                    statusLabel.Text = $"✅ Downloaded: {shortName}";
                 }
             }
             catch (Exception ex)
             {
-                statusLabel.Text = $"❌ Failed to extract {entry.FileName}";
-                MessageBox.Show($"Error extracting entry from remote ZIP file: {ex.Message}", "Extraction Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                statusLabel.Text = $"❌ Failed to extract {shortName}";
+                MessageBox.Show($"Error extracting entry:\n{ex.Message}", "Extraction Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
-                onlineLoadBtn.Enabled = true;
-                downloadBtn.Enabled = true;
+                SetUiState(true);
             }
+        }
+
+        private void SetUiState(bool enabled)
+        {
+            onlineLoadBtn.Enabled = enabled;
+            downloadBtn.Enabled = enabled;
         }
 
         private void TreeZip_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            
+
         }
     }
 }
