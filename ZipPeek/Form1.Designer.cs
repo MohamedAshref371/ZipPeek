@@ -37,6 +37,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.passwordTextBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.statusLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // treeZip
@@ -109,11 +110,21 @@
             this.label2.TabIndex = 7;
             this.label2.Text = "Link : ";
             // 
+            // statusLabel
+            // 
+            this.statusLabel.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.statusLabel.Location = new System.Drawing.Point(373, 451);
+            this.statusLabel.Name = "statusLabel";
+            this.statusLabel.Size = new System.Drawing.Size(245, 23);
+            this.statusLabel.TabIndex = 8;
+            this.statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 481);
+            this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.passwordTextBox);
             this.Controls.Add(this.label1);
@@ -141,6 +152,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox passwordTextBox;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label statusLabel;
     }
 }
 
