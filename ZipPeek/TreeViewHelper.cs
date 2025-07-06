@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace ZipPeek
 {
@@ -26,7 +24,7 @@ namespace ZipPeek
                 {
                     string compressed = FormatSize(entry.CompressedSize);
                     string uncompressed = FormatSize(entry.UncompressedSize);
-                    nodeText = $"{(entry.IsEncrypted ? "🔒" : "")} {part} ({compressed} / {uncompressed})";
+                    nodeText = $"{(entry.IsEncrypted ? "🔒" : "")} {part} ({compressed} / {uncompressed}) | {entry.LastModified}";
                 }
 
                 TreeNode found = null;

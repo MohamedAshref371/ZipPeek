@@ -14,6 +14,7 @@ namespace ZipPeek
         public long UncompressedSize { get; set; }
         public ushort CompressionMethod { get; set; }
         public bool IsEncrypted { get; set; }
+        public DateTime LastModified { get; set; }
     }
 
     public static class RemoteZipReader
@@ -92,6 +93,11 @@ namespace ZipPeek
 
                 ushort generalPurpose = BitConverter.ToUInt16(data, ptr + 8);
                 ushort compression = BitConverter.ToUInt16(data, ptr + 10);
+
+                ushort time = BitConverter.ToUInt16(data, ptr + 12);
+                ushort date = BitConverter.ToUInt16(data, ptr + 14);
+                DateTime lastModified = DosDateTimeToDateTime(date, time);
+
                 uint compressedSize = BitConverter.ToUInt32(data, ptr + 20);
                 uint uncompressedSize = BitConverter.ToUInt32(data, ptr + 24);
                 ushort fileNameLen = BitConverter.ToUInt16(data, ptr + 28);
@@ -151,6 +157,7 @@ namespace ZipPeek
                     UncompressedSize = uncompressed,
                     LocalHeaderOffset = localHeaderOffset,
                     IsEncrypted = isEncrypted,
+                    LastModified = lastModified,
                 });
 
                 ptr += 46 + fileNameLen + extraLen + commentLen;
@@ -158,5 +165,26 @@ namespace ZipPeek
 
             return list;
         }
+
+        private static DateTime DosDateTimeToDateTime(ushort date, ushort time)
+        {
+            try
+            {
+                int year = ((date >> 9) & 0x7F) + 1980;
+                int month = (date >> 5) & 0x0F;
+                int day = date & 0x1F;
+
+                int hour = (time >> 11) & 0x1F;
+                int minute = (time >> 5) & 0x3F;
+                int second = (time & 0x1F) * 2;
+
+                return new DateTime(year, month, day, hour, minute, second);
+            }
+            catch
+            {
+                return DateTime.MinValue;
+            }
+        }
+
     }
 }
