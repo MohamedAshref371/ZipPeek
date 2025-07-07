@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -33,7 +34,9 @@ namespace ZipPeek
                 return;
             }
 
-            treeZip.Nodes.Clear();
+            TreeViewHelper.Reset();
+            sortingFeatureEnabled = false;
+            sortList.SelectedIndex = -1;
             SetUiState(false);
             statusLabel.Text = "📡 Connecting... downloading central directory...";
 
@@ -41,7 +44,6 @@ namespace ZipPeek
             try
             {
                 entries = await RemoteZipReader.ReadAsync(urlTextBox.Text);
-                entries = entries.OrderByDescending(ze => ze.FileName, StringComparer.OrdinalIgnoreCase).ToList();
 
                 if (entries.Count == 0)
                 {
@@ -55,6 +57,7 @@ namespace ZipPeek
                 treeZip.BeginUpdate();
                 foreach (var entry in entries)
                     TreeViewHelper.AddToTree(entry);
+                TreeViewHelper.MarkEmptyFolders(treeZip.Nodes);
                 treeZip.EndUpdate();
 
                 statusLabel.Text = $"✅ Loaded {entries.Count:N0} file{(entries.Count == 1 ? "" : "s")}.";
@@ -120,9 +123,102 @@ namespace ZipPeek
             System.Diagnostics.Process.Start("https://github.com/MohamedAshref371/ZipPeek/releases/latest");
         }
 
-        private void TreeZip_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        string currentKeyword = "";
+        private readonly List<TreeNode> treeNodeList = new List<TreeNode>();
+        int index;
+        private void Search(bool up)
         {
+            string keyword = searchTextBox.Text;
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                statusLabel.Text = "🔍 Please enter a search term.";
+                return;
+            }
 
+            if (currentKeyword != keyword)
+            {
+                currentKeyword = keyword;
+                TreeViewHelper.SearchByName(treeNodeList, keyword);
+                index = up ? 1 : -1;
+
+                if (treeNodeList.Count == 0)
+                {
+                    statusLabel.Text = "🔍 No matches found.";
+                    return;
+                }
+
+                statusLabel.Text = $"🔍 Found {treeNodeList.Count} match{(treeNodeList.Count == 1 ? "" : "es")}.";
+            }
+
+            if (treeNodeList.Count == 0) return;
+
+            // تحريك الفهرس
+            index += up ? -1 : 1;
+
+            // تدوير الفهرس
+            if (index < 0) index = treeNodeList.Count - 1;
+            if (index >= treeNodeList.Count) index = 0;
+
+            // تحديد النود
+            var selectedNode = treeNodeList[index];
+            treeZip.SelectedNode = selectedNode;
+            selectedNode.EnsureVisible();
+
+            statusLabel.Text = $"🔍 Match {index + 1} of {treeNodeList.Count}";
+            treeZip.Focus();
+        }
+
+        private void UpBtn_Click(object sender, EventArgs e)
+        {
+            Search(true);
+        }
+
+        private void DownBtn_Click(object sender, EventArgs e)
+        {
+            Search(false);
+        }
+
+        bool sortingFeatureEnabled = false;
+        private void SortList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int idx = sortList.SelectedIndex;
+            if (idx < 0) return;
+
+            if (!sortingFeatureEnabled)
+            {
+                foreach (TreeNode root in treeZip.Nodes)
+                    TreeViewHelper.ComputeMetadata(root);
+                sortingFeatureEnabled = true;
+            }
+
+            // نحدد معيار الفرز حسب العنصر المحدد
+            TreeViewHelper.SortCriteria criteria;
+            
+            switch (idx)
+            {
+                case 2:
+                case 3:
+                    criteria = TreeViewHelper.SortCriteria.CompressedSize;
+                    break;
+                case 4:
+                case 5:
+                    criteria = TreeViewHelper.SortCriteria.UncompressedSize;
+                    break;
+                case 6:
+                case 7:
+                    criteria = TreeViewHelper.SortCriteria.ModifiedTime;
+                    break;
+                default:
+                    criteria = TreeViewHelper.SortCriteria.Name;
+                    break;
+            }
+
+            // تنفيذ الفرز
+            treeZip.BeginUpdate();
+            TreeViewHelper.SortNodes(treeZip.Nodes, criteria, ascending: idx % 2 == 0);
+            treeZip.EndUpdate();
+
+            statusLabel.Text = $"🔃 Sorted by {sortList.SelectedItem}";
         }
     }
 }
