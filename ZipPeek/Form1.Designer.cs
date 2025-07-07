@@ -61,6 +61,7 @@
             this.urlTextBox.Name = "urlTextBox";
             this.urlTextBox.Size = new System.Drawing.Size(520, 20);
             this.urlTextBox.TabIndex = 2;
+            this.urlTextBox.Text = "https://github.com/MohamedAshref371/ZipPeek/releases/latest/download/ZipPeek.zip";
             // 
             // ofd
             // 
@@ -92,7 +93,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.label1.Location = new System.Drawing.Point(9, 538);
+            this.label1.Location = new System.Drawing.Point(12, 538);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(83, 17);
             this.label1.TabIndex = 5;
@@ -111,9 +112,9 @@
             this.label2.Font = new System.Drawing.Font("Tahoma", 10F);
             this.label2.Location = new System.Drawing.Point(12, 510);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(45, 17);
+            this.label2.Size = new System.Drawing.Size(80, 17);
             this.label2.TabIndex = 7;
-            this.label2.Text = "Link : ";
+            this.label2.Text = "Direct link : ";
             // 
             // statusLabel
             // 
