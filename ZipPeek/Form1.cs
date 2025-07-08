@@ -36,6 +36,7 @@ namespace ZipPeek
             TreeViewHelper.Reset();
             sortingFeatureEnabled = false;
             sortList.SelectedIndex = -1;
+            currentKeyword = "";
             SetUiState(false);
             statusLabel.Text = "📡 Connecting... downloading central directory...";
 
@@ -115,6 +116,9 @@ namespace ZipPeek
         {
             onlineLoadBtn.Enabled = enabled;
             downloadBtn.Enabled = enabled;
+            sortList.Enabled = enabled;
+            upBtn.Enabled = enabled;
+            downBtn.Enabled = enabled;
         }
 
         private void StatusLabel_DoubleClick(object sender, EventArgs e)
