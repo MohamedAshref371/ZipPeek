@@ -34,8 +34,8 @@ namespace ZipPeek
             }
 
             TreeViewHelper.Reset();
-            sortingFeatureEnabled = false;
             sortList.SelectedIndex = -1;
+            sortingFeatureEnabled = false;
             currentKeyword = "";
             SetUiState(false);
             statusLabel.Text = "📡 Connecting... downloading central directory...";
