@@ -81,6 +81,7 @@ namespace ZipPeek
                     {
                         await zipStream.CopyToAsync(output);
                         File.WriteAllBytes(outputPath, output.ToArray());
+                        File.SetLastWriteTime(outputPath, entry.LastModified);
                     }
                 }
 
@@ -122,6 +123,7 @@ namespace ZipPeek
             }
 
             File.WriteAllBytes(outputPath, outputData);
+            File.SetLastWriteTime(outputPath, entry.LastModified);
         }
 
         private static int FindSignature(byte[] data, uint signature)
