@@ -97,7 +97,7 @@ namespace ZipPeek
                 else
                 {
                     statusLabel.Text = $"⬇️ Downloading: {shortName} ...";
-                    await RemoteZipExtractor.ExtractRemoteEntryAsync( urlTextBox.Text, entry, "downloadFolder", entry.IsEncrypted ? passwordTextBox.Text : null );
+                    await RemoteZipExtractor.ExtractRemoteEntryAsync( urlTextBox.Text, entry, "Download", entry.IsEncrypted ? passwordTextBox.Text : null );
                     statusLabel.Text = $"✅ Downloaded: {shortName}";
                 }
             }
