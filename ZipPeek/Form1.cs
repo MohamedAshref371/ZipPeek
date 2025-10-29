@@ -103,39 +103,126 @@ namespace ZipPeek
         private async void DownloadBtn_Click(object sender, EventArgs e)
         {
             var node = treeZip.SelectedNode;
-            if (node == null || !(node.Tag is ZipEntry))
+            if (node == null)
             {
                 statusLabel.Text = "⚠️ Please select a file to download.";
                 return;
             }
 
-            ZipEntry entry = (ZipEntry)node.Tag;
-            string shortName = entry.FileName.Split('/').Last();
-
             SetUiState(false);
+            if (node.Tag is ZipEntry entry)
+                await DownloadZipEntry(entry, entry.FileName.Split('/').Last());
+            else if (node.Nodes.Count == 0)
+                statusLabel.Text = "⚠️ Selected folder is empty.";
+            else if (MessageBox.Show("Do you want to download the folder according to the current settings?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            {
+                statusLabel.Text = "📂 Downloading selected folder...";
+                cancelBtn.Visible = true;
+                cancelAll = false;
+                await Download(node);
+            }
+            SetUiState(true);
+        }
 
+        bool cancelAll = false;
+        private void CancelBtn_Click(object sender, EventArgs e)
+        {
+            cancelAll = true;
+            cancelBtn.Visible = false;
+        }
+
+        private async Task Download(TreeNode node)
+        {
+            string shortName = "";
+            for (int i = 0; i < node.Nodes.Count; i++)
+            {
+                if (cancelAll)
+                {
+                    statusLabel.Text = "🛑 Download cancelled by user.";
+                    return;
+                }
+
+                if (node.Nodes[i].Tag is ZipEntry entry)
+                {
+                    shortName = entry.FileName.Split('/').Last();
+                    #region File Exists
+                    if (FolderSetting.ExistsFileOption != 1 && File.Exists(Path.Combine("Download", entry.FileName.Replace('/', '\\'))))
+                    {
+                        if (FolderSetting.ExistsFileOption == 0)
+                        {
+                            statusLabel.Text = $"⚠️ Skipped existing file: {shortName}";
+                            continue;
+                        }
+                        else if (FolderSetting.ExistsFileOption == 2)
+                        {
+                            DialogResult res = MessageBox.Show($"File '{shortName}' already exists.\nDo you want to overwrite it?", "File Exists", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                            if (res == DialogResult.No)
+                            {
+                                statusLabel.Text = $"⚠️ Skipped existing file: {shortName}";
+                                continue;
+                            }
+                            else if (res == DialogResult.Cancel)
+                            {
+                                CancelBtn_Click(null, null);
+                                continue;
+                            }
+                        }
+                    }
+                    #endregion
+
+                    await DownloadZipEntry(entry, shortName, false);
+
+                    #region Download Failed
+                    if (!FolderSetting.FailedSkip && statusLabel.Text.StartsWith("❌ Failed"))
+                    {
+                        DialogResult res = MessageBox.Show($"The '{shortName}' file download failed. Do you want to try again?", "Download Failed", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                        if (res == DialogResult.Yes)
+                        {
+                            await DownloadZipEntry(entry, shortName, false);
+                            if (statusLabel.Text.StartsWith("❌ Failed") && MessageBox.Show($"The file download failed for the second time.\nSkipping file: {shortName}", "Skipping", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
+                                CancelBtn_Click(null, null);
+                        }
+                        else if (res == DialogResult.Cancel)
+                            CancelBtn_Click(null, null);
+                    }
+                    #endregion
+                }
+                #region Subfolder Handling
+                else if (FolderSetting.SubfolderOption == 1)
+                    await Download(node.Nodes[i]);
+                else if (FolderSetting.SubfolderOption == 2 && node.Nodes[i].Nodes.Count > 0)
+                {
+                    DialogResult res = MessageBox.Show($"Do you want to download the folder: '{node.Nodes[i].Text}' ?", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                    if (res == DialogResult.Yes) {
+                        await Download(node.Nodes[i]);
+                    }
+                    else if (res == DialogResult.Cancel)
+                        CancelBtn_Click(null, null);
+                }
+                #endregion
+            }
+        }
+
+        private async Task DownloadZipEntry(ZipEntry entry, string shortName, bool showMessages = true)
+        {
             try
             {
                 if (entry.IsEncrypted && string.IsNullOrWhiteSpace(passwordTextBox.Text))
                 {
                     statusLabel.Text = "🔒 Password required to extract encrypted file.";
-                    MessageBox.Show("This file is encrypted. Please enter the password.", "Password Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    if (showMessages) MessageBox.Show("This file is encrypted. Please enter the password.", "Password Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
                     statusLabel.Text = $"⬇️ Downloading: {shortName} ...";
-                    await RemoteZipExtractor.ExtractRemoteEntryAsync( urlTextBox.Text, entry, "Download", entry.IsEncrypted ? passwordTextBox.Text : null );
+                    await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "Download", entry.IsEncrypted ? passwordTextBox.Text : null);
                     statusLabel.Text = $"✅ Downloaded: {shortName}";
                 }
             }
             catch (Exception ex)
             {
                 statusLabel.Text = $"❌ Failed to extract {shortName}";
-                MessageBox.Show($"Error extracting entry:\n{ex.Message}", "Extraction Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                SetUiState(true);
+                if (showMessages) MessageBox.Show($"Error extracting entry:\n{ex.Message}", "Extraction Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
