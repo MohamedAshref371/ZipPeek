@@ -52,7 +52,7 @@
             this.groupBox1.Controls.Add(this.failedMessage);
             this.groupBox1.Controls.Add(this.failedSkip);
             this.groupBox1.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.groupBox1.Location = new System.Drawing.Point(19, 49);
+            this.groupBox1.Location = new System.Drawing.Point(19, 48);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(430, 91);
             this.groupBox1.TabIndex = 1;
@@ -98,7 +98,7 @@
             this.groupBox2.Controls.Add(this.existDownload);
             this.groupBox2.Controls.Add(this.existSkip);
             this.groupBox2.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.groupBox2.Location = new System.Drawing.Point(19, 157);
+            this.groupBox2.Location = new System.Drawing.Point(19, 153);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(430, 118);
             this.groupBox2.TabIndex = 4;
@@ -143,7 +143,7 @@
             this.groupBox3.Controls.Add(this.subfolderYes);
             this.groupBox3.Controls.Add(this.subfolderNo);
             this.groupBox3.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.groupBox3.Location = new System.Drawing.Point(19, 291);
+            this.groupBox3.Location = new System.Drawing.Point(19, 285);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(430, 118);
             this.groupBox3.TabIndex = 8;
@@ -186,7 +186,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.label2.Location = new System.Drawing.Point(18, 423);
+            this.label2.Location = new System.Drawing.Point(18, 419);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(579, 19);
             this.label2.TabIndex = 12;
@@ -198,7 +198,7 @@
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Tahoma", 18F);
             this.label3.ForeColor = System.Drawing.Color.Maroon;
-            this.label3.Location = new System.Drawing.Point(469, 191);
+            this.label3.Location = new System.Drawing.Point(470, 189);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(191, 58);
             this.label3.TabIndex = 13;
@@ -218,7 +218,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.groupBox1);
             this.Name = "FolderSetting";
-            this.Size = new System.Drawing.Size(676, 453);
+            this.Size = new System.Drawing.Size(676, 447);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);

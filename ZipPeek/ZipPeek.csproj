@@ -120,6 +120,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="progIcon.ico" />
+    <None Include="Resources\xIcon.png" />
+    <None Include="Resources\settingsIcon.png" />
     <None Include="Resources\up-arrow.png" />
     <None Include="Resources\down-arrow.png" />
   </ItemGroup>
