@@ -71,6 +71,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FolderSetting.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FolderSetting.Designer.cs">
+      <DependentUpon>FolderSetting.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -82,6 +88,9 @@
     <Compile Include="TreeViewHelper.cs" />
     <Compile Include="ZipExtractor.cs" />
     <Compile Include="RemoteZipReader.cs" />
+    <EmbeddedResource Include="FolderSetting.resx">
+      <DependentUpon>FolderSetting.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
