@@ -29,18 +29,19 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.failedSkip = new System.Windows.Forms.RadioButton();
             this.failedMessage = new System.Windows.Forms.RadioButton();
+            this.failedSkip = new System.Windows.Forms.RadioButton();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.existMessage = new System.Windows.Forms.RadioButton();
             this.existDownload = new System.Windows.Forms.RadioButton();
             this.existSkip = new System.Windows.Forms.RadioButton();
-            this.existMessage = new System.Windows.Forms.RadioButton();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.subfolderMessage = new System.Windows.Forms.RadioButton();
             this.subfolderYes = new System.Windows.Forms.RadioButton();
             this.subfolderNo = new System.Windows.Forms.RadioButton();
             this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -58,16 +59,15 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "2. The \'download failed\' event.";
             // 
-            // label1
+            // failedMessage
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.label1.Location = new System.Drawing.Point(18, 12);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(639, 19);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "1. Tip: Sort the files by compressed size in ascending order before downloading a" +
-    " folder.";
+            this.failedMessage.AutoSize = true;
+            this.failedMessage.Location = new System.Drawing.Point(19, 55);
+            this.failedMessage.Name = "failedMessage";
+            this.failedMessage.Size = new System.Drawing.Size(290, 23);
+            this.failedMessage.TabIndex = 3;
+            this.failedMessage.Text = "Display the \'retry or ignore\' message.";
+            this.failedMessage.UseVisualStyleBackColor = true;
             // 
             // failedSkip
             // 
@@ -81,15 +81,16 @@
             this.failedSkip.Text = "Skip file.";
             this.failedSkip.UseVisualStyleBackColor = true;
             // 
-            // failedMessage
+            // label1
             // 
-            this.failedMessage.AutoSize = true;
-            this.failedMessage.Location = new System.Drawing.Point(19, 55);
-            this.failedMessage.Name = "failedMessage";
-            this.failedMessage.Size = new System.Drawing.Size(290, 23);
-            this.failedMessage.TabIndex = 3;
-            this.failedMessage.Text = "Display the \'retry or ignore\' message.";
-            this.failedMessage.UseVisualStyleBackColor = true;
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Tahoma", 12F);
+            this.label1.Location = new System.Drawing.Point(18, 12);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(639, 19);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "1. Tip: Sort the files by compressed size in ascending order before downloading a" +
+    " folder.";
             // 
             // groupBox2
             // 
@@ -103,6 +104,16 @@
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "3. File already exists before download.";
+            // 
+            // existMessage
+            // 
+            this.existMessage.AutoSize = true;
+            this.existMessage.Location = new System.Drawing.Point(19, 84);
+            this.existMessage.Name = "existMessage";
+            this.existMessage.Size = new System.Drawing.Size(326, 23);
+            this.existMessage.TabIndex = 7;
+            this.existMessage.Text = "Display the \'download or ignore\' message.";
+            this.existMessage.UseVisualStyleBackColor = true;
             // 
             // existDownload
             // 
@@ -125,16 +136,6 @@
             this.existSkip.TabStop = true;
             this.existSkip.Text = "Skip file.";
             this.existSkip.UseVisualStyleBackColor = true;
-            // 
-            // existMessage
-            // 
-            this.existMessage.AutoSize = true;
-            this.existMessage.Location = new System.Drawing.Point(19, 84);
-            this.existMessage.Name = "existMessage";
-            this.existMessage.Size = new System.Drawing.Size(326, 23);
-            this.existMessage.TabIndex = 7;
-            this.existMessage.Text = "Display the \'download or ignore\' message.";
-            this.existMessage.UseVisualStyleBackColor = true;
             // 
             // groupBox3
             // 
@@ -192,12 +193,25 @@
             this.label2.Text = "5. Warning: If you do not enter the password, all encrypted files will be ignored" +
     ".";
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Tahoma", 18F);
+            this.label3.ForeColor = System.Drawing.Color.Maroon;
+            this.label3.Location = new System.Drawing.Point(469, 191);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(191, 58);
+            this.label3.TabIndex = 13;
+            this.label3.Text = "Folder Download\r\nSettings";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // FolderSetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -231,5 +245,6 @@
         private System.Windows.Forms.RadioButton subfolderYes;
         private System.Windows.Forms.RadioButton subfolderNo;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
     }
 }
