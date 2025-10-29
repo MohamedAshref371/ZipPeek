@@ -25,6 +25,18 @@ namespace ZipPeek
             subfolderMessage.CheckedChanged += (s, e) => { if (subfolderMessage.Checked) SubfolderOption = 2; };
         }
 
+        public void SetValues()
+        {
+            failedSkip.Checked = FailedSkip;
+            failedMessage.Checked = !FailedSkip;
+            existSkip.Checked = ExistsFileOption == 0;
+            existDownload.Checked = ExistsFileOption == 1;
+            existMessage.Checked = ExistsFileOption == 2;
+            subfolderNo.Checked = SubfolderOption == 0;
+            subfolderYes.Checked = SubfolderOption == 1;
+            subfolderMessage.Checked = SubfolderOption == 2;
+        }
+
         #region Border Radius
         private readonly int borderRadius = 20;
 
