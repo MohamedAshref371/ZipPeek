@@ -74,7 +74,7 @@ namespace ZipPeek
             }
         }
 
-        private static string FormatSize(long bytes)
+        public static string FormatSize(long bytes)
         {
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };
             double len = bytes;

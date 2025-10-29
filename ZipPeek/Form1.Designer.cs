@@ -56,6 +56,7 @@
             this.treeZip.PathSeparator = "/";
             this.treeZip.Size = new System.Drawing.Size(776, 455);
             this.treeZip.TabIndex = 0;
+            this.treeZip.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TreeZip_KeyUp);
             // 
             // urlTextBox
             // 

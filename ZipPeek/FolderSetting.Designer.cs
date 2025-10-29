@@ -42,6 +42,7 @@
             this.subfolderNo = new System.Windows.Forms.RadioButton();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -198,12 +199,24 @@
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Tahoma", 18F);
             this.label3.ForeColor = System.Drawing.Color.Maroon;
-            this.label3.Location = new System.Drawing.Point(470, 189);
+            this.label3.Location = new System.Drawing.Point(466, 116);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(191, 58);
             this.label3.TabIndex = 13;
             this.label3.Text = "Folder Download\r\nSettings";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label4
+            // 
+            this.label4.Font = new System.Drawing.Font("Tahoma", 14F);
+            this.label4.ForeColor = System.Drawing.Color.Navy;
+            this.label4.Location = new System.Drawing.Point(464, 220);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(198, 133);
+            this.label4.TabIndex = 14;
+            this.label4.Text = "Press F1 or F2 to see the compressed size of the folder with or without subfolder" +
+    "s.";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // FolderSetting
             // 
@@ -211,6 +224,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.groupBox3);
@@ -246,5 +260,6 @@
         private System.Windows.Forms.RadioButton subfolderNo;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
     }
 }

@@ -352,5 +352,31 @@ namespace ZipPeek
             Properties.Settings.Default.SubfolderOption = FolderSetting.SubfolderOption;
             Properties.Settings.Default.Save();
         }
+
+        private void TreeZip_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.F1 && e.KeyCode != Keys.F2)
+                return;
+
+            var node = treeZip.SelectedNode;
+            if (!downBtn.Enabled || node == null || node.Tag is ZipEntry)
+                return;
+
+            long totalSize = GetCompressedSize(node, e.KeyCode == Keys.F1);
+            MessageBox.Show($"Total Compressed Size: {TreeViewHelper.FormatSize(totalSize)}", "Compressed Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private long GetCompressedSize(TreeNode node, bool withSubfolders)
+        {
+            long totalSize = 0;
+            for (int i = 0; i < node.Nodes.Count; i++)
+            {
+                if (node.Nodes[i].Tag is ZipEntry entry)
+                    totalSize += entry.CompressedSize;
+                else if (withSubfolders)
+                    totalSize += GetCompressedSize(node.Nodes[i], true);
+            }
+            return totalSize;
+        }
     }
 }
