@@ -1,4 +1,4 @@
-# ZipPeek v1.6
+# ZipPeek v1.7
 
 ## About This Project
 
@@ -32,7 +32,7 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 - 📂 Displays folder and file structure in a TreeView UI.
 - 📏 Shows both compressed and uncompressed sizes next to each file.
 - ⚡ Uses HTTP Range Requests to download only the required parts (EOCD + Central Directory).
-- 📥 Supports downloading **individual files** from the ZIP archive remotely with high precision.
+- 📥 Supports downloading **individual files or folders** from the ZIP archive remotely with high precision.
 - 🔐 Supports extracting **ZipCrypto-encrypted files** using a user-provided password.
 - 🧱 Fully supports **ZIP64 format** (archives larger than 4GB or with more than 65535 entries).
 - 🔍 Built-in **search** functionality with up/down navigation.
@@ -43,7 +43,6 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 
 ## ⚠️ Limitations
 
-- ❌ Does not support extracting folders or multiple files at once.
 - ⚠️ Only **ZipCrypto** encryption is supported. Archives using **AES encryption** are not currently supported.
 - ⚠️ Will not work if the remote server does not support HTTP Range requests.
 - ⚠️ Only standard ZIP format is supported (no split archives, multi-disk, or advanced compression).
