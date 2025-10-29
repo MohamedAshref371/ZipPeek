@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ZipPeek
 {
     public partial class Form1 : Form
     {
+        private readonly FolderSetting folderSetting = new FolderSetting();
+
         public Form1()
         {
             InitializeComponent();
@@ -15,6 +19,29 @@ namespace ZipPeek
             string[] versionParts = Application.ProductVersion.Split('.');
             Array.Resize(ref versionParts, 2);
             Text = $"{Application.ProductName} v{string.Join(".", versionParts)} - View ZIP Files Online";
+
+            FolderSetting.FailedSkip = Properties.Settings.Default.FailedSkip;
+            FolderSetting.ExistsFileOption = Properties.Settings.Default.ExistsFileOption;
+            FolderSetting.SubfolderOption = Properties.Settings.Default.SubfolderOption;
+            folderSetting.SetValues();
+
+            Controls.Add(folderSetting);
+            folderSetting.BringToFront();
+            folderSetting.Location = new System.Drawing.Point(treeZip.Location.X + (treeZip.Size.Width - folderSetting.Size.Width) / 2, treeZip.Location.Y + 4);
+            folderSetting.Visible = false;
+            folderBtn.Click += (s, e) =>
+            {
+                if (folderSetting.Visible)
+                {
+                    folderSetting.Visible = false;
+                    folderBtn.BackgroundImage = Properties.Resources.settingsIcon;
+                }
+                else
+                {
+                    folderBtn.BackgroundImage = Properties.Resources.xIcon;
+                    folderSetting.Visible = true;
+                }
+            };
 
             statusLabel.Text = "Ready.";
         }
@@ -119,6 +146,12 @@ namespace ZipPeek
             sortList.Enabled = enabled;
             upBtn.Enabled = enabled;
             downBtn.Enabled = enabled;
+            folderBtn.Enabled = enabled;
+            if (!enabled && folderSetting.Visible)
+            {
+                folderSetting.Visible = false;
+                folderBtn.BackgroundImage = Properties.Resources.settingsIcon;
+            }
         }
 
         private void StatusLabel_DoubleClick(object sender, EventArgs e)
@@ -222,6 +255,14 @@ namespace ZipPeek
             treeZip.EndUpdate();
 
             statusLabel.Text = $"🔃 Sorted by {sortList.SelectedItem}";
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Properties.Settings.Default.FailedSkip = FolderSetting.FailedSkip;
+            Properties.Settings.Default.ExistsFileOption = FolderSetting.ExistsFileOption;
+            Properties.Settings.Default.SubfolderOption = FolderSetting.SubfolderOption;
+            Properties.Settings.Default.Save();
         }
     }
 }

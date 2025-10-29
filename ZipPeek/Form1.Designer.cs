@@ -39,11 +39,13 @@
             this.label2 = new System.Windows.Forms.Label();
             this.statusLabel = new System.Windows.Forms.Label();
             this.searchTextBox = new System.Windows.Forms.TextBox();
-            this.upBtn = new System.Windows.Forms.Button();
-            this.downBtn = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.sortList = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.folderBtn = new System.Windows.Forms.Button();
+            this.downBtn = new System.Windows.Forms.Button();
+            this.upBtn = new System.Windows.Forms.Button();
+            this.cancelBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // treeZip
@@ -134,34 +136,6 @@
             this.searchTextBox.Size = new System.Drawing.Size(266, 24);
             this.searchTextBox.TabIndex = 10;
             // 
-            // upBtn
-            // 
-            this.upBtn.BackgroundImage = global::ZipPeek.Properties.Resources.up_arrow;
-            this.upBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.upBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.upBtn.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.upBtn.ForeColor = System.Drawing.SystemColors.Control;
-            this.upBtn.Location = new System.Drawing.Point(350, 6);
-            this.upBtn.Name = "upBtn";
-            this.upBtn.Size = new System.Drawing.Size(32, 28);
-            this.upBtn.TabIndex = 11;
-            this.upBtn.UseVisualStyleBackColor = false;
-            this.upBtn.Click += new System.EventHandler(this.UpBtn_Click);
-            // 
-            // downBtn
-            // 
-            this.downBtn.BackgroundImage = global::ZipPeek.Properties.Resources.down_arrow;
-            this.downBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.downBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.downBtn.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.downBtn.ForeColor = System.Drawing.SystemColors.Control;
-            this.downBtn.Location = new System.Drawing.Point(385, 6);
-            this.downBtn.Name = "downBtn";
-            this.downBtn.Size = new System.Drawing.Size(32, 28);
-            this.downBtn.TabIndex = 12;
-            this.downBtn.UseVisualStyleBackColor = false;
-            this.downBtn.Click += new System.EventHandler(this.DownBtn_Click);
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -202,11 +176,66 @@
             this.label4.TabIndex = 15;
             this.label4.Text = "Sort : ";
             // 
+            // folderBtn
+            // 
+            this.folderBtn.BackgroundImage = global::ZipPeek.Properties.Resources.settingsIcon;
+            this.folderBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.folderBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.folderBtn.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.folderBtn.ForeColor = System.Drawing.SystemColors.Control;
+            this.folderBtn.Location = new System.Drawing.Point(438, 6);
+            this.folderBtn.Name = "folderBtn";
+            this.folderBtn.Size = new System.Drawing.Size(32, 28);
+            this.folderBtn.TabIndex = 16;
+            this.folderBtn.UseVisualStyleBackColor = false;
+            // 
+            // downBtn
+            // 
+            this.downBtn.BackgroundImage = global::ZipPeek.Properties.Resources.down_arrow;
+            this.downBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.downBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.downBtn.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.downBtn.ForeColor = System.Drawing.SystemColors.Control;
+            this.downBtn.Location = new System.Drawing.Point(385, 6);
+            this.downBtn.Name = "downBtn";
+            this.downBtn.Size = new System.Drawing.Size(32, 28);
+            this.downBtn.TabIndex = 12;
+            this.downBtn.UseVisualStyleBackColor = false;
+            this.downBtn.Click += new System.EventHandler(this.DownBtn_Click);
+            // 
+            // upBtn
+            // 
+            this.upBtn.BackgroundImage = global::ZipPeek.Properties.Resources.up_arrow;
+            this.upBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.upBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.upBtn.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.upBtn.ForeColor = System.Drawing.SystemColors.Control;
+            this.upBtn.Location = new System.Drawing.Point(350, 6);
+            this.upBtn.Name = "upBtn";
+            this.upBtn.Size = new System.Drawing.Size(32, 28);
+            this.upBtn.TabIndex = 11;
+            this.upBtn.UseVisualStyleBackColor = false;
+            this.upBtn.Click += new System.EventHandler(this.UpBtn_Click);
+            // 
+            // cancelBtn
+            // 
+            this.cancelBtn.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.cancelBtn.Location = new System.Drawing.Point(705, 501);
+            this.cancelBtn.Name = "cancelBtn";
+            this.cancelBtn.Size = new System.Drawing.Size(83, 32);
+            this.cancelBtn.TabIndex = 17;
+            this.cancelBtn.Text = "Cancel";
+            this.cancelBtn.UseVisualStyleBackColor = true;
+            this.cancelBtn.Visible = false;
+            this.cancelBtn.Click += new System.EventHandler(this.CancelBtn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 569);
+            this.Controls.Add(this.cancelBtn);
+            this.Controls.Add(this.folderBtn);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.sortList);
             this.Controls.Add(this.label3);
@@ -226,6 +255,7 @@
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "ZipPeek";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -248,6 +278,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox sortList;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button folderBtn;
+        private System.Windows.Forms.Button cancelBtn;
     }
 }
 
