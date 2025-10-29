@@ -117,9 +117,10 @@ namespace ZipPeek
             else if (MessageBox.Show("Do you want to download the folder according to the current settings?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
                 statusLabel.Text = "📂 Downloading selected folder...";
-                cancelBtn.Visible = true;
                 cancelAll = false;
+                cancelBtn.Visible = true;
                 await Download(node);
+                cancelBtn.Visible = false;
             }
             SetUiState(true);
         }
