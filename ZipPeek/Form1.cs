@@ -73,7 +73,7 @@ namespace ZipPeek
             {
                 startAndSize = await RemoteZipReader.ReadAsync(urlTextBox.Text);
 
-                if (startAndSize[1] > 3 * 1024 * 1024 && MessageBox.Show($"About {TreeViewHelper.FormatSize(startAndSize[1])} of metadata needs to be downloaded.", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2) == DialogResult.Cancel )
+                if (startAndSize[1] > 3 * 1024 * 1024 && MessageBox.Show($"About {TreeViewHelper.FormatSize(startAndSize[1])} of metadata needs to be downloaded.", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2) == DialogResult.Cancel)
                 {
                     statusLabel.Text = "⛔ Metadata download canceled by user.";
                     return;
@@ -145,7 +145,7 @@ namespace ZipPeek
 
         private async Task Download(TreeNode node)
         {
-            string shortName = "";
+            string shortName;
             for (int i = 0; i < node.Nodes.Count; i++)
             {
                 if (cancelAll)
@@ -205,9 +205,8 @@ namespace ZipPeek
                 else if (FolderSetting.SubfolderOption == 2 && node.Nodes[i].Nodes.Count > 0)
                 {
                     DialogResult res = MessageBox.Show($"Do you want to download the folder: '{node.Nodes[i].Text}' ?", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
-                    if (res == DialogResult.Yes) {
+                    if (res == DialogResult.Yes)
                         await Download(node.Nodes[i]);
-                    }
                     else if (res == DialogResult.Cancel)
                         CancelBtn_Click(null, null);
                 }
@@ -328,7 +327,7 @@ namespace ZipPeek
 
             // نحدد معيار الفرز حسب العنصر المحدد
             TreeViewHelper.SortCriteria criteria;
-            
+
             switch (idx)
             {
                 case 2:
