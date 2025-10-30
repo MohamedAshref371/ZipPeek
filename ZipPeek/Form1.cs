@@ -362,12 +362,12 @@ namespace ZipPeek
             if (!downBtn.Enabled || node == null || node.Tag is ZipEntry)
                 return;
 
-
-            long totalSize = GetCompressedSize(node, e.KeyCode == Keys.F1 || e.KeyCode == Keys.F2, e.KeyCode == Keys.F1 || e.KeyCode == Keys.F3);
-            MessageBox.Show($"Total Compressed Size: {TreeViewHelper.FormatSize(totalSize)}", "Compressed Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            bool compressed = e.KeyCode == Keys.F1 || e.KeyCode == Keys.F2;
+            long totalSize = GetSize(node, compressed, e.KeyCode == Keys.F1 || e.KeyCode == Keys.F3);
+            MessageBox.Show($"Total {(compressed? "C":"Unc")}ompressed Size: {TreeViewHelper.FormatSize(totalSize)}", $"{(compressed ? "C" : "Unc")}ompressed Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private long GetCompressedSize(TreeNode node, bool compressed, bool withSubfolders)
+        private long GetSize(TreeNode node, bool compressed, bool withSubfolders)
         {
             long totalSize = 0;
             for (int i = 0; i < node.Nodes.Count; i++)
@@ -375,7 +375,7 @@ namespace ZipPeek
                 if (node.Nodes[i].Tag is ZipEntry entry)
                     totalSize += compressed ? entry.CompressedSize : entry.UncompressedSize;
                 else if (withSubfolders)
-                    totalSize += GetCompressedSize(node.Nodes[i], compressed, true);
+                    totalSize += GetSize(node.Nodes[i], compressed, true);
             }
             return totalSize;
         }
