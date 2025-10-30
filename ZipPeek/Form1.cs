@@ -67,10 +67,21 @@ namespace ZipPeek
             SetUiState(false);
             statusLabel.Text = "📡 Connecting... downloading central directory...";
 
+            long[] startAndSize;
             List<ZipEntry> entries;
             try
             {
-                entries = await RemoteZipReader.ReadAsync(urlTextBox.Text);
+                startAndSize = await RemoteZipReader.ReadAsync(urlTextBox.Text);
+
+                if (startAndSize[1] > 3 * 1024 * 1024 && MessageBox.Show($"About {TreeViewHelper.FormatSize(startAndSize[1])} of metadata needs to be downloaded.", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2) == DialogResult.Cancel )
+                {
+                    statusLabel.Text = "⛔ Metadata download canceled by user.";
+                    return;
+                }
+
+                statusLabel.Text = "📥 Downloading metadata... Please wait.";
+
+                entries = await RemoteZipReader.ReadZipEntriesAsync(urlTextBox.Text, startAndSize[0], startAndSize[1]);
 
                 if (entries.Count == 0)
                 {

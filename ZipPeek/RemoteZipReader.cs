@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace ZipPeek
 {
@@ -25,7 +26,7 @@ namespace ZipPeek
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
-        public static async Task<List<ZipEntry>> ReadAsync(string url)
+        public static async Task<long[]> ReadAsync(string url)
         {
             long fileSize = await RemoteZipExtractor.GetRemoteFileSizeAsync(url);
 
@@ -59,6 +60,11 @@ namespace ZipPeek
                 cdStart = BitConverter.ToUInt32(eocd, 16);
             }
 
+            return new long[] { cdStart, cdSize };
+        }
+
+        public static async Task<List<ZipEntry>> ReadZipEntriesAsync(string url, long cdStart, long cdSize)
+        {
             byte[] cdData = await FetchRangeAsync(url, cdStart, cdStart + cdSize - 1);
             return ParseCentralDirectory(cdData);
         }
