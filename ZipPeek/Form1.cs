@@ -364,7 +364,8 @@ namespace ZipPeek
 
             bool compressed = e.KeyCode == Keys.F1 || e.KeyCode == Keys.F2;
             long totalSize = GetSize(node, compressed, e.KeyCode == Keys.F1 || e.KeyCode == Keys.F3);
-            MessageBox.Show($"Total {(compressed? "C":"Unc")}ompressed Size: {TreeViewHelper.FormatSize(totalSize)}", $"{(compressed ? "C" : "Unc")}ompressed Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            string txt = $"{(compressed ? "C" : "Unc")}ompressed Size";
+            MessageBox.Show($"Total {txt}: {TreeViewHelper.FormatSize(totalSize)}", txt, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private long GetSize(TreeNode node, bool compressed, bool withSubfolders)
