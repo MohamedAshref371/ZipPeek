@@ -106,7 +106,7 @@
             // 
             this.passwordTextBox.Location = new System.Drawing.Point(98, 537);
             this.passwordTextBox.Name = "passwordTextBox";
-            this.passwordTextBox.Size = new System.Drawing.Size(189, 20);
+            this.passwordTextBox.Size = new System.Drawing.Size(144, 20);
             this.passwordTextBox.TabIndex = 6;
             // 
             // label2
@@ -122,9 +122,9 @@
             // statusLabel
             // 
             this.statusLabel.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.statusLabel.Location = new System.Drawing.Point(293, 537);
+            this.statusLabel.Location = new System.Drawing.Point(243, 537);
             this.statusLabel.Name = "statusLabel";
-            this.statusLabel.Size = new System.Drawing.Size(495, 23);
+            this.statusLabel.Size = new System.Drawing.Size(556, 23);
             this.statusLabel.TabIndex = 8;
             this.statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.statusLabel.DoubleClick += new System.EventHandler(this.StatusLabel_DoubleClick);

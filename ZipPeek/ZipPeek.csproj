@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DownloadManager.cs" />
     <Compile Include="FolderSetting.cs">
       <SubType>UserControl</SubType>
     </Compile>

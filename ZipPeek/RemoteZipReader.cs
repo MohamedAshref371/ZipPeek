@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
 
 namespace ZipPeek
 {
@@ -63,9 +62,13 @@ namespace ZipPeek
             return new long[] { cdStart, cdSize };
         }
 
-        public static async Task<List<ZipEntry>> ReadZipEntriesAsync(string url, long cdStart, long cdSize)
+        public static async Task<List<ZipEntry>> ReadZipEntriesAsync(string url, long cdStart, long cdSize, IProgress<long> progress)
         {
-            byte[] cdData = await FetchRangeAsync(url, cdStart, cdStart + cdSize - 1);
+            byte[] cdData;
+            if (progress is null)
+                cdData = await FetchRangeAsync(url, cdStart, cdStart + cdSize - 1);
+            else
+                cdData = await DownloadManager.FetchRangeAsync(url, cdStart, cdStart + cdSize - 1, progress);
             return ParseCentralDirectory(cdData);
         }
 

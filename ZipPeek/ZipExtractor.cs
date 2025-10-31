@@ -22,7 +22,7 @@ namespace ZipPeek
             return 0;
         }
 
-        public static async Task ExtractRemoteEntryAsync(string url, ZipEntry entry, string outputFolder, string password = null)
+        public static async Task ExtractRemoteEntryAsync(string url, ZipEntry entry, string outputFolder, IProgress<long> progress, string password = null)
         {
             const int LocalHeaderFixedSize = 30;
             long headerStart = entry.LocalHeaderOffset;
@@ -63,10 +63,16 @@ namespace ZipPeek
 
                 long fullEnd = fullStart + headerTotalLength + encryptionHeaderSize + entry.CompressedSize + extraBytes - 1;
 
-                var dataRequest = new HttpRequestMessage(HttpMethod.Get, url);
-                dataRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullStart, fullEnd);
-                var dataResponse = await client.SendAsync(dataRequest, HttpCompletionOption.ResponseHeadersRead);
-                byte[] fullEncryptedData = await dataResponse.Content.ReadAsByteArrayAsync();
+                byte[] fullEncryptedData;
+                if (progress is null)
+                {
+                    var dataRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                    dataRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullStart, fullEnd);
+                    var dataResponse = await client.SendAsync(dataRequest, HttpCompletionOption.ResponseHeadersRead);
+                    fullEncryptedData = await dataResponse.Content.ReadAsByteArrayAsync();
+                }
+                else
+                    fullEncryptedData = await DownloadManager.FetchRangeAsync(url, fullStart, fullEnd, progress);
 
                 if (fullEncryptedData.Length < sigOffset + headerTotalLength + encryptionHeaderSize)
                     throw new Exception("Downloaded encrypted data is smaller than expected.");
@@ -92,10 +98,16 @@ namespace ZipPeek
             long fullDataStart = headerStart + sigOffset;
             long fullDataEnd = fullDataStart + headerTotalLength + entry.CompressedSize + (hasDataDescriptor ? 20 : 0) + 32 - 1;
 
-            var normalRequest = new HttpRequestMessage(HttpMethod.Get, url);
-            normalRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullDataStart, fullDataEnd);
-            var normalResponse = await client.SendAsync(normalRequest, HttpCompletionOption.ResponseHeadersRead);
-            byte[] fullFileData = await normalResponse.Content.ReadAsByteArrayAsync();
+            byte[] fullFileData;
+            if (progress is null)
+            {
+                var normalRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                normalRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullDataStart, fullDataEnd);
+                var normalResponse = await client.SendAsync(normalRequest, HttpCompletionOption.ResponseHeadersRead);
+                fullFileData = await normalResponse.Content.ReadAsByteArrayAsync();
+            }
+            else
+                fullFileData = await DownloadManager.FetchRangeAsync(url, fullDataStart, fullDataEnd, progress);
 
             if (fullFileData.Length < headerTotalLength + entry.CompressedSize)
                 throw new Exception("Downloaded data is smaller than expected.");

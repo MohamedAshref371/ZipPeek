@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -46,6 +48,7 @@ namespace ZipPeek
             statusLabel.Text = "Ready.";
         }
 
+        bool isDownload;
         private async void OnlineLoadBtn_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(urlTextBox.Text))
@@ -72,16 +75,26 @@ namespace ZipPeek
             try
             {
                 startAndSize = await RemoteZipReader.ReadAsync(urlTextBox.Text);
+                bool isBig = startAndSize[1] > 3 * 1024 * 1024;
 
-                if (startAndSize[1] > 3 * 1024 * 1024 && MessageBox.Show($"About {TreeViewHelper.FormatSize(startAndSize[1])} of metadata needs to be downloaded.", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2) == DialogResult.Cancel)
+                string sizeInfo = TreeViewHelper.FormatSize(startAndSize[1]);
+                if (isBig && MessageBox.Show($"About {sizeInfo} of metadata needs to be downloaded.", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2) == DialogResult.Cancel)
                 {
                     statusLabel.Text = "⛔ Metadata download canceled by user.";
                     return;
                 }
 
-                statusLabel.Text = "📥 Downloading metadata... Please wait.";
+                statusLabel.Text = "⬇️ Downloading metadata... Please wait.";
 
-                entries = await RemoteZipReader.ReadZipEntriesAsync(urlTextBox.Text, startAndSize[0], startAndSize[1]);
+                if (isBig)
+                {
+                    cancelBtn.Visible = true; isDownload = true;
+                    var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading metadata...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
+                    entries = await RemoteZipReader.ReadZipEntriesAsync(urlTextBox.Text, startAndSize[0], startAndSize[1], progress);
+                    cancelBtn.Visible = false; isDownload = false;
+                }
+                else
+                    entries = await RemoteZipReader.ReadZipEntriesAsync(urlTextBox.Text, startAndSize[0], startAndSize[1], null);
 
                 if (entries.Count == 0)
                 {
@@ -99,6 +112,10 @@ namespace ZipPeek
                 treeZip.EndUpdate();
 
                 statusLabel.Text = $"✅ Loaded {entries.Count:N0} file{(entries.Count == 1 ? "" : "s")}.";
+            }
+            catch (TaskCanceledException)
+            {
+                statusLabel.Text = "🛑 Metadata download canceled by user.";
             }
             catch (Exception ex)
             {
@@ -141,6 +158,8 @@ namespace ZipPeek
         {
             cancelAll = true;
             cancelBtn.Visible = false;
+            if (isDownload)
+                DownloadManager.CancelFetch();
         }
 
         private async Task Download(TreeNode node)
@@ -226,9 +245,22 @@ namespace ZipPeek
                 else
                 {
                     statusLabel.Text = $"⬇️ Downloading: {shortName} ...";
-                    await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "Download", entry.IsEncrypted ? passwordTextBox.Text : null);
+                    if (entry.CompressedSize > 1 * 1024 * 1024)
+                    {
+                        string sizeInfo = TreeViewHelper.FormatSize(entry.CompressedSize);
+                        cancelBtn.Visible = true; isDownload = true;
+                        var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
+                        await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "Download", progress, entry.IsEncrypted ? passwordTextBox.Text : null);
+                        if (showMessages) cancelBtn.Visible = false; isDownload = false;
+                    }
+                    else
+                        await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "Download", null, entry.IsEncrypted ? passwordTextBox.Text : null);
                     statusLabel.Text = $"✅ Downloaded: {shortName}";
                 }
+            }
+            catch (TaskCanceledException)
+            {
+                statusLabel.Text = "⛔ Download canceled by user.";
             }
             catch (Exception ex)
             {
@@ -361,6 +393,9 @@ namespace ZipPeek
             Properties.Settings.Default.ExistsFileOption = FolderSetting.ExistsFileOption;
             Properties.Settings.Default.SubfolderOption = FolderSetting.SubfolderOption;
             Properties.Settings.Default.Save();
+
+            if (isDownload && MessageBox.Show("A download is in progress.\nAre you sure you want to exit?", "Confirm Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                e.Cancel = true;
         }
 
         private void TreeZip_KeyUp(object sender, KeyEventArgs e)
