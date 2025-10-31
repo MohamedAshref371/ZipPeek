@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -286,7 +285,7 @@ namespace ZipPeek
 
         private void StatusLabel_DoubleClick(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("https://github.com/MohamedAshref371/ZipPeek/releases/latest");
+            Process.Start("https://github.com/MohamedAshref371/ZipPeek/releases/latest");
         }
 
         string currentKeyword = "";
@@ -406,7 +405,7 @@ namespace ZipPeek
             var node = treeZip.SelectedNode;
             if (!downBtn.Enabled || node == null || node.Tag is ZipEntry)
                 return;
-
+            
             long[] totalSize = GetSize(node, e.KeyCode == Keys.F1);
             MessageBox.Show($"Total Compressed Size: {TreeViewHelper.FormatSize(totalSize[0])}\nTotal Uncompressed Size: {TreeViewHelper.FormatSize(totalSize[1])}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
