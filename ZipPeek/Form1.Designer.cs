@@ -46,6 +46,7 @@
             this.downBtn = new System.Windows.Forms.Button();
             this.upBtn = new System.Windows.Forms.Button();
             this.cancelBtn = new System.Windows.Forms.Button();
+            this.pauseBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // treeZip
@@ -230,11 +231,23 @@
             this.cancelBtn.Visible = false;
             this.cancelBtn.Click += new System.EventHandler(this.CancelBtn_Click);
             // 
+            // pauseBtn
+            // 
+            this.pauseBtn.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.pauseBtn.Location = new System.Drawing.Point(624, 500);
+            this.pauseBtn.Name = "pauseBtn";
+            this.pauseBtn.Size = new System.Drawing.Size(75, 32);
+            this.pauseBtn.TabIndex = 18;
+            this.pauseBtn.Text = "Pause";
+            this.pauseBtn.UseVisualStyleBackColor = true;
+            this.pauseBtn.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 569);
+            this.Controls.Add(this.pauseBtn);
             this.Controls.Add(this.cancelBtn);
             this.Controls.Add(this.folderBtn);
             this.Controls.Add(this.label4);
@@ -281,6 +294,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button folderBtn;
         private System.Windows.Forms.Button cancelBtn;
+        private System.Windows.Forms.Button pauseBtn;
     }
 }
 

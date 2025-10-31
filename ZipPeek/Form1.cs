@@ -74,10 +74,9 @@ namespace ZipPeek
             try
             {
                 startAndSize = await RemoteZipReader.ReadAsync(urlTextBox.Text);
-                bool isBig = startAndSize[1] > 3 * 1024 * 1024;
 
                 string sizeInfo = TreeViewHelper.FormatSize(startAndSize[1]);
-                if (isBig && MessageBox.Show($"About {sizeInfo} of metadata needs to be downloaded.", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2) == DialogResult.Cancel)
+                if (startAndSize[1] > 3 * 1024 * 1024 && MessageBox.Show($"About {sizeInfo} of metadata needs to be downloaded.", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2) == DialogResult.Cancel)
                 {
                     statusLabel.Text = "⛔ Metadata download canceled by user.";
                     return;
@@ -85,7 +84,7 @@ namespace ZipPeek
 
                 statusLabel.Text = "⬇️ Downloading metadata... Please wait.";
 
-                if (isBig)
+                if (startAndSize[1] > 1 * 1024 * 1024)
                 {
                     cancelBtn.Visible = true; isDownload = true;
                     var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading metadata...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
