@@ -37,7 +37,7 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 - 🧱 Fully supports **ZIP64 format** (archives larger than 4GB or with more than 65535 entries).
 - 🔍 Built-in **search** functionality with up/down navigation.
 - ↕️ Supports **sorting** files/folders by name, size, or last modified date (asc/desc).
-- 🧮 Preview **compressed (F1/F2)** or **uncompressed (F3/F4)** folder size, with or without subfolders.
+- 🧮 View folder size (F1/F2), with or without subfolders.
 - 💡 Lightweight and efficient, ideal for cloud-based ZIP inspection and partial extraction tools.
 
 <br>

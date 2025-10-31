@@ -211,13 +211,12 @@
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Tahoma", 14F);
             this.label4.ForeColor = System.Drawing.Color.Navy;
-            this.label4.Location = new System.Drawing.Point(469, 239);
+            this.label4.Location = new System.Drawing.Point(483, 242);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(223, 92);
+            this.label4.Size = new System.Drawing.Size(184, 92);
             this.label4.TabIndex = 14;
-            this.label4.Text = "F1 / F2 : Compressed  \r\nF3 / F4 : Uncompressed  \r\nSize of the folder  \r\nWith / wi" +
-    "thout subfolders";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label4.Text = "Press F1 or F2 to see\r\nthe size of the folder\r\nwith or without\r\nsubfolders.";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // FolderSetting
             // 

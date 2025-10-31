@@ -400,30 +400,36 @@ namespace ZipPeek
 
         private void TreeZip_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode < Keys.F1 || e.KeyCode > Keys.F4)
+            if (e.KeyCode != Keys.F1 && e.KeyCode != Keys.F2)
                 return;
 
             var node = treeZip.SelectedNode;
             if (!downBtn.Enabled || node == null || node.Tag is ZipEntry)
                 return;
 
-            bool compressed = e.KeyCode == Keys.F1 || e.KeyCode == Keys.F2;
-            long totalSize = GetSize(node, compressed, e.KeyCode == Keys.F1 || e.KeyCode == Keys.F3);
-            string txt = $"{(compressed ? "C" : "Unc")}ompressed Size";
-            MessageBox.Show($"Total {txt}: {TreeViewHelper.FormatSize(totalSize)}", txt, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            long[] totalSize = GetSize(node, e.KeyCode == Keys.F1);
+            MessageBox.Show($"Total Compressed Size: {TreeViewHelper.FormatSize(totalSize[0])}\nTotal Uncompressed Size: {TreeViewHelper.FormatSize(totalSize[1])}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private long GetSize(TreeNode node, bool compressed, bool withSubfolders)
+        private long[] GetSize(TreeNode node, bool withSubfolders)
         {
-            long totalSize = 0;
+            long totalCompressedSize = 0;
+            long totalUncompressedSize = 0;
             for (int i = 0; i < node.Nodes.Count; i++)
             {
                 if (node.Nodes[i].Tag is ZipEntry entry)
-                    totalSize += compressed ? entry.CompressedSize : entry.UncompressedSize;
+                {
+                    totalCompressedSize += entry.CompressedSize;
+                    totalUncompressedSize += entry.UncompressedSize;
+                }
                 else if (withSubfolders)
-                    totalSize += GetSize(node.Nodes[i], compressed, true);
+                {
+                    long[] size = GetSize(node.Nodes[i], true);
+                    totalCompressedSize += size[0];
+                    totalUncompressedSize += size[1];
+                }
             }
-            return totalSize;
+            return new long[] { totalCompressedSize , totalUncompressedSize };
         }
     }
 }
