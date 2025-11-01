@@ -149,7 +149,7 @@ namespace ZipPeek
             return -1;
         }
 
-        public static async Task ExtractRemoteEntry2Async(string url, ZipEntry entry, IProgress<long> progress, IProgress<long> decompressProgress, string password = null)
+        public static async Task<long> ExtractRemoteEntry2Async(string url, ZipEntry entry, IProgress<long> progress, string password = null)
         {
             const int LocalHeaderFixedSize = 30;
             long headerStart = entry.LocalHeaderOffset;
@@ -187,115 +187,100 @@ namespace ZipPeek
 
             int bytesRead, totalRead = 0;
             byte[] buffer = new byte[8192];
-            try
+            if (entry.IsEncrypted)
             {
-                if (entry.IsEncrypted)
+                if (string.IsNullOrEmpty(password))
+                    throw new Exception($"⛔ File '{fileName}' is encrypted. Password is required.");
+
+                const int encryptionHeaderSize = 12;
+                long fullStart = headerStart; // مهم: نبدأ من بداية الـ LocalHeader
+                long extraBytes = 64; // تحسباً لوجود Data Descriptor أو اختلافات
+                long fullEnd = fullStart + headerTotalLength + encryptionHeaderSize + entry.CompressedSize + extraBytes - 1;
+
+                // تحميل إلى ملف مؤقت على الهارد
+                await DownloadManager.DownloadRangeToFileAsync(url, tempPath, fullStart, fullEnd, progress);
+
+                // افتح الملف المؤقت ومرره إلى ZipInputStream
+                using (var fs = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, useAsync: true))
                 {
-                    if (string.IsNullOrEmpty(password))
-                        throw new Exception($"⛔ File '{fileName}' is encrypted. Password is required.");
+                    // نضع مؤشر القراءة عند بداية local header داخل الملف المؤقت
+                    // داخل الملف المؤقت الموضع الصحيح للـ local header هو (sigOffset) لأننا بدأنا التحميل من headerStart
+                    fs.Seek(sigOffset, SeekOrigin.Begin);
 
-                    const int encryptionHeaderSize = 12;
-                    long fullStart = headerStart; // مهم: نبدأ من بداية الـ LocalHeader
-                    long extraBytes = 64; // تحسباً لوجود Data Descriptor أو اختلافات
-                    long fullEnd = fullStart + headerTotalLength + encryptionHeaderSize + entry.CompressedSize + extraBytes - 1;
-
-                    // تحميل إلى ملف مؤقت على الهارد
-                    await DownloadManager.DownloadRangeToFileAsync(url, tempPath, fullStart, fullEnd, progress);
-
-                    // افتح الملف المؤقت ومرره إلى ZipInputStream
-                    using (var fs = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, useAsync: true))
+                    using (var zipStream = new ZipInputStream(fs))
                     {
-                        // نضع مؤشر القراءة عند بداية local header داخل الملف المؤقت
-                        // داخل الملف المؤقت الموضع الصحيح للـ local header هو (sigOffset) لأننا بدأنا التحميل من headerStart
-                        fs.Seek(sigOffset, SeekOrigin.Begin);
+                        zipStream.Password = password;
 
-                        using (var zipStream = new ZipInputStream(fs))
+                        var zipEntryFromStream = zipStream.GetNextEntry();
+                        if (zipEntryFromStream == null)
+                            throw new Exception($"⚠️ Could not open encrypted file '{fileName}'. Possibly AES or unsupported encryption.");
+
+                        // إذا المكتبة تكشف AES بطريقة معينة، حاول رمي خطأ واضح
+                        if (zipEntryFromStream.AESKeySize > 0)
+                            throw new Exception($"⚠️ AES-encrypted entries are not supported for file '{fileName}'.");
+
+                        // كتابة المخرجات مباشرة إلى ملف (من الهارد إلى الهارد)
+                        using (var outFs = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
                         {
-                            zipStream.Password = password;
-
-                            var zipEntryFromStream = zipStream.GetNextEntry();
-                            if (zipEntryFromStream == null)
-                                throw new Exception($"⚠️ Could not open encrypted file '{fileName}'. Possibly AES or unsupported encryption.");
-
-                            // إذا المكتبة تكشف AES بطريقة معينة، حاول رمي خطأ واضح
-                            if (zipEntryFromStream.AESKeySize > 0)
-                                throw new Exception($"⚠️ AES-encrypted entries are not supported for file '{fileName}'.");
-
-                            // كتابة المخرجات مباشرة إلى ملف (من الهارد إلى الهارد)
-                            using (var outFs = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
+                            while ((bytesRead = await zipStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                             {
-                                while ((bytesRead = await zipStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                                {
-                                    await outFs.WriteAsync(buffer, 0, bytesRead);
-                                    totalRead += bytesRead;
-                                    decompressProgress?.Report(totalRead);
-                                }
+                                await outFs.WriteAsync(buffer, 0, bytesRead);
+                                totalRead += bytesRead;
                             }
-
-                            File.SetLastWriteTime(outputPath, entry.LastModified);
                         }
-                    }
 
-                    return;
+                        File.SetLastWriteTime(outputPath, entry.LastModified);
+                    }
                 }
 
-                // الحالة غير المشفرة
-                long fullDataStart = headerStart + sigOffset;
-                long fullDataEnd = fullDataStart + headerTotalLength + entry.CompressedSize + (hasDataDescriptor ? 20 : 0) + 32 - 1;
-
-                // تحميل إلى ملف مؤقت
-                await DownloadManager.DownloadRangeToFileAsync(url, tempPath, fullDataStart, fullDataEnd, progress);
-
-                // الآن افتح الملف المؤقت واستخدمه لفك الضغط مباشرة إلى القرص
-                using (var input = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, useAsync: true))
-                {
-                    // داخل هذا الملف المؤقت، رأس الملف المحلي يبدأ عند موضع 0 لأننا حملنا من fullDataStart (= headerStart + sigOffset)
-                    // لذلك نضع Seek إلى headerTotalLength داخل الملف المؤقت لنبدأ بنهاية الهيدر حيث يبدأ البيانات المضغوطة
-                    input.Seek(headerTotalLength, SeekOrigin.Begin);
-
-                    if (entry.CompressionMethod == 0) // Stored
-                    {
-                        using (var output = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
-                        {
-                            while ((bytesRead = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                            {
-                                await output.WriteAsync(buffer, 0, bytesRead);
-                                totalRead += bytesRead;
-                                decompressProgress?.Report(totalRead);
-                            }
-                        }
-                    }
-                    else if (entry.CompressionMethod == 8) // Deflate
-                    {
-                        using (var deflate = new System.IO.Compression.DeflateStream(input, System.IO.Compression.CompressionMode.Decompress, leaveOpen: true))
-                        using (var output = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
-                        {
-                            while ((bytesRead = await deflate.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                            {
-                                await output.WriteAsync(buffer, 0, bytesRead);
-                                totalRead += bytesRead;
-                                decompressProgress?.Report(totalRead);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception($"⚠️ Skipping unsupported compression method {entry.CompressionMethod} for file {fileName}");
-                    }
-
-                    File.SetLastWriteTime(outputPath, entry.LastModified);
-                }
+                return totalRead;
             }
-            finally
+
+            // الحالة غير المشفرة
+            long fullDataStart = headerStart + sigOffset;
+            long fullDataEnd = fullDataStart + headerTotalLength + entry.CompressedSize + (hasDataDescriptor ? 20 : 0) + 32 - 1;
+
+            // تحميل إلى ملف مؤقت
+            await DownloadManager.DownloadRangeToFileAsync(url, tempPath, fullDataStart, fullDataEnd, progress);
+
+            // الآن افتح الملف المؤقت واستخدمه لفك الضغط مباشرة إلى القرص
+            using (var input = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, useAsync: true))
             {
-                // حذف الملف المؤقت
-                try
+                // داخل هذا الملف المؤقت، رأس الملف المحلي يبدأ عند موضع 0 لأننا حملنا من fullDataStart (= headerStart + sigOffset)
+                // لذلك نضع Seek إلى headerTotalLength داخل الملف المؤقت لنبدأ بنهاية الهيدر حيث يبدأ البيانات المضغوطة
+                input.Seek(headerTotalLength, SeekOrigin.Begin);
+
+                if (entry.CompressionMethod == 0) // Stored
                 {
-                    if (File.Exists(tempPath) && File.Exists(outputPath))
-                        File.Delete(tempPath);
+                    using (var output = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
+                    {
+                        while ((bytesRead = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                        {
+                            await output.WriteAsync(buffer, 0, bytesRead);
+                            totalRead += bytesRead;
+                        }
+                    }
                 }
-                catch { /* لا نفشل بسبب فشل الحذف */ }
+                else if (entry.CompressionMethod == 8) // Deflate
+                {
+                    using (var deflate = new System.IO.Compression.DeflateStream(input, System.IO.Compression.CompressionMode.Decompress, leaveOpen: true))
+                    using (var output = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
+                    {
+                        while ((bytesRead = await deflate.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                        {
+                            await output.WriteAsync(buffer, 0, bytesRead);
+                            totalRead += bytesRead;
+                        }
+                    }
+                }
+                else
+                {
+                    throw new Exception($"⚠️ Skipping unsupported compression method {entry.CompressionMethod} for file {fileName}");
+                }
+
+                File.SetLastWriteTime(outputPath, entry.LastModified);
             }
+            return totalRead;
         }
     }
 }

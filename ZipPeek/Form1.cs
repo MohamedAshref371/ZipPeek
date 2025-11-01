@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -243,14 +244,22 @@ namespace ZipPeek
                 else
                 {
                     statusLabel.Text = $"⬇️ Downloading: {shortName} ...";
-                    if (entry.CompressedSize > 30 * 1024 * 1024)
+                    if (entry.CompressedSize > 1 * 1024 * 1024)
                     {
                         string sizeInfo = TreeViewHelper.FormatSize(entry.CompressedSize);
                         cancelBtn.Visible = true; isDownload = true;
                         var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
-                        var decompressProgress = new Progress<long>(p => statusLabel.Text = $"📦 Decompressing: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
-                        await RemoteZipExtractor.ExtractRemoteEntry2Async(urlTextBox.Text, entry, progress, decompressProgress, entry.IsEncrypted ? passwordTextBox.Text : null);
+                        //var decompressProgress = new Progress<long>(p => statusLabel.Text = $"📦 Decompressing: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {TreeViewHelper.FormatSize(entry.UncompressedSize)}");
+                        long size = await RemoteZipExtractor.ExtractRemoteEntry2Async(urlTextBox.Text, entry, progress, entry.IsEncrypted ? passwordTextBox.Text : null);
                         if (showMessages) cancelBtn.Visible = false; isDownload = false;
+                        statusLabel.Text = $"✅ Decompressed: {shortName}  {TreeViewHelper.FormatSize(size)} / {TreeViewHelper.FormatSize(entry.UncompressedSize)}";
+                        try
+                        {
+                            string fname = entry.FileName.Replace('/', '\\');
+                            if (File.Exists(Path.Combine("_temp", fname)) && File.Exists(Path.Combine("Download", fname)))
+                                File.Delete(Path.Combine("_temp", fname));
+                        }
+                        catch { /* لا نفشل بسبب فشل الحذف */ }
                     }
                     else if (entry.CompressedSize > 1 * 1024 * 1024)
                     {
@@ -259,10 +268,13 @@ namespace ZipPeek
                         var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
                         await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, progress, entry.IsEncrypted ? passwordTextBox.Text : null);
                         if (showMessages) cancelBtn.Visible = false; isDownload = false;
+                        statusLabel.Text = $"✅ Downloaded: {shortName}";
                     }
                     else
+                    {
                         await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, null, entry.IsEncrypted ? passwordTextBox.Text : null);
-                    statusLabel.Text = $"✅ Downloaded: {shortName}";
+                        statusLabel.Text = $"✅ Downloaded: {shortName}";
+                    }
                 }
             }
             catch (TaskCanceledException)
