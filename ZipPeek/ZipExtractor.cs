@@ -270,7 +270,7 @@ namespace ZipPeek
                         using (var deflate = new System.IO.Compression.DeflateStream(input, System.IO.Compression.CompressionMode.Decompress, leaveOpen: true))
                         using (var output = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
                         {
-                            while ((bytesRead = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                            while ((bytesRead = await deflate.ReadAsync(buffer, 0, buffer.Length)) > 0)
                             {
                                 await output.WriteAsync(buffer, 0, bytesRead);
                                 totalRead += bytesRead;
