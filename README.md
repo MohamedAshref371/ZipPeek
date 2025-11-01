@@ -1,4 +1,4 @@
-# ZipPeek v1.7
+# ZipPeek v1.8
 
 ## About This Project
 
@@ -38,6 +38,7 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 - 🔍 Built-in **search** functionality with up/down navigation.
 - ↕️ Supports **sorting** files/folders by name, size, or last modified date (asc/desc).
 - 🧮 View folder size (F1/F2), with or without subfolders.
+- ♻️ Supports resumable downloads for large files (30 MB+).
 - 💡 Lightweight and efficient, ideal for cloud-based ZIP inspection and partial extraction tools.
 
 <br>
