@@ -76,7 +76,7 @@ namespace ZipPeek
                 startAndSize = await RemoteZipReader.ReadAsync(urlTextBox.Text);
 
                 string sizeInfo = TreeViewHelper.FormatSize(startAndSize[1]);
-                if (startAndSize[1] > 3 * 1024 * 1024 && MessageBox.Show($"About {sizeInfo} of metadata needs to be downloaded.", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2) == DialogResult.Cancel)
+                if (startAndSize[1] > 7 * 1024 * 1024 && MessageBox.Show($"About {sizeInfo} of metadata needs to be downloaded.", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2) == DialogResult.Cancel)
                 {
                     statusLabel.Text = "⛔ Metadata download canceled by user.";
                     return;
@@ -280,6 +280,11 @@ namespace ZipPeek
                 folderSetting.Visible = false;
                 folderBtn.BackgroundImage = Properties.Resources.settingsIcon;
             }
+            if (enabled)
+            {
+                cancelBtn.Visible = false;
+                isDownload = false;
+            }
         }
 
         private void StatusLabel_DoubleClick(object sender, EventArgs e)
@@ -392,8 +397,12 @@ namespace ZipPeek
             Properties.Settings.Default.SubfolderOption = FolderSetting.SubfolderOption;
             Properties.Settings.Default.Save();
 
-            if (isDownload && MessageBox.Show("A download is in progress.\nAre you sure you want to exit?", "Confirm Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+            if (isDownload)
+            {
+                if (MessageBox.Show("Do you want to stop the download?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    CancelBtn_Click(null, null);
                 e.Cancel = true;
+            }
         }
 
         private void TreeZip_KeyUp(object sender, KeyEventArgs e)
