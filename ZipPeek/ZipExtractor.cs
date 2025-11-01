@@ -29,11 +29,14 @@ namespace ZipPeek
             long headerStart = entry.LocalHeaderOffset;
             long headerEnd = headerStart + LocalHeaderFixedSize + 2048;
 
+            byte[] headerData;
             // تحميل Local Header
-            var headerRequest = new HttpRequestMessage(HttpMethod.Get, url);
-            headerRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
-            var headerResponse = await client.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead);
-            byte[] headerData = await headerResponse.Content.ReadAsByteArrayAsync();
+            using (var headerRequest = new HttpRequestMessage(HttpMethod.Get, url))
+            {
+                headerRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
+                using (var headerResponse = await client.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead))
+                    headerData = await headerResponse.Content.ReadAsByteArrayAsync();
+            }
 
             int sigOffset = FindSignature(headerData, 0x04034b50);
             if (sigOffset < 0)
@@ -104,10 +107,12 @@ namespace ZipPeek
             byte[] fullFileData;
             if (progress is null)
             {
-                var normalRequest = new HttpRequestMessage(HttpMethod.Get, url);
-                normalRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullDataStart, fullDataEnd);
-                var normalResponse = await client.SendAsync(normalRequest, HttpCompletionOption.ResponseHeadersRead);
-                fullFileData = await normalResponse.Content.ReadAsByteArrayAsync();
+                using (var normalRequest = new HttpRequestMessage(HttpMethod.Get, url))
+                {
+                    normalRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullDataStart, fullDataEnd);
+                    using (var normalResponse = await client.SendAsync(normalRequest, HttpCompletionOption.ResponseHeadersRead))
+                        fullFileData = await normalResponse.Content.ReadAsByteArrayAsync();
+                }
             }
             else
                 fullFileData = await DownloadManager.FetchRangeAsync(url, fullDataStart, fullDataEnd, progress);
