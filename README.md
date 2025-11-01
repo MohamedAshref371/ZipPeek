@@ -46,7 +46,7 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 ## ⚠️ Limitations
 
 - ❌ Cannot extract more than one folder or file at the same time.
-- ⚠️ Downloading files larger than 30 MB has not been fully tested, so use with caution.
+- ⚠️ The new **resumable download** feature for files larger than 30 MB has not been thoroughly tested yet.
 - ⚠️ Only **ZipCrypto** encryption is supported. Archives using **AES encryption** are not currently supported.
 - ⚠️ Will not work if the remote server does not support HTTP Range requests.
 - ⚠️ Only standard ZIP format is supported (no split archives, multi-disk, or advanced compression).
