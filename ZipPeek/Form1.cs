@@ -236,7 +236,11 @@ namespace ZipPeek
         {
             try
             {
-                if (entry.IsEncrypted && string.IsNullOrWhiteSpace(passwordTextBox.Text))
+                if (entry.IsEncrypted && entry.IsAesEncrypted)
+                {
+                    statusLabel.Text = $"❌ Cannot extract 🔒'{shortName}' because it is AES-encrypted.";
+                }
+                else if (entry.IsEncrypted && string.IsNullOrWhiteSpace(passwordTextBox.Text))
                 {
                     statusLabel.Text = "🔒 Password required to extract encrypted file.";
                     if (showMessages) MessageBox.Show("This file is encrypted. Please enter the password.", "Password Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);

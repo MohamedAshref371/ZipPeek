@@ -14,6 +14,7 @@ namespace ZipPeek
         public long UncompressedSize { get; set; }
         public ushort CompressionMethod { get; set; }
         public bool IsEncrypted { get; set; }
+        public bool IsAesEncrypted { get; set; }
         public DateTime LastModified { get; set; }
     }
 
@@ -100,7 +101,7 @@ namespace ZipPeek
             while (ptr + 46 <= data.Length)
             {
                 uint sig = BitConverter.ToUInt32(data, ptr);
-                if (sig != 0x02014b50) break;
+                if (sig != 0x02014b50) break; // نهاية Central Directory
 
                 ushort generalPurpose = BitConverter.ToUInt16(data, ptr + 8);
                 ushort compression = BitConverter.ToUInt16(data, ptr + 10);
@@ -116,7 +117,6 @@ namespace ZipPeek
                 ushort commentLen = BitConverter.ToUInt16(data, ptr + 32);
                 uint localHeaderOffsetRaw = BitConverter.ToUInt32(data, ptr + 42);
 
-                // ✔️ استخدام الترميز الصحيح
                 bool isUtf8 = (generalPurpose & (1 << 11)) != 0;
                 Encoding fileNameEncoding = isUtf8 ? Encoding.UTF8 : Encoding.GetEncoding(437);
                 string fileName = fileNameEncoding.GetString(data, ptr + 46, fileNameLen);
@@ -125,43 +125,46 @@ namespace ZipPeek
                 Array.Copy(data, ptr + 46 + fileNameLen, extraField, 0, extraLen);
 
                 bool isEncrypted = (generalPurpose & 0x0001) != 0;
+                bool isAesEncrypted = false;
 
                 long compressed = compressedSize;
                 long uncompressed = uncompressedSize;
                 long localHeaderOffset = localHeaderOffsetRaw;
 
-                // ⬇️ تحقق من ZIP64 extra field إن وجد
-                if (compressedSize == 0xFFFFFFFF || uncompressedSize == 0xFFFFFFFF || localHeaderOffsetRaw == 0xFFFFFFFF)
+                // 🔍 تحليل كل extra fields (ZIP64 أو AES)
+                int i = 0;
+                while (i + 4 <= extraField.Length)
                 {
-                    int i = 0;
-                    while (i + 4 <= extraField.Length)
+                    ushort headerId = BitConverter.ToUInt16(extraField, i);
+                    ushort dataSize = BitConverter.ToUInt16(extraField, i + 2);
+
+                    // ZIP64
+                    if (headerId == 0x0001)
                     {
-                        ushort headerId = BitConverter.ToUInt16(extraField, i);
-                        ushort dataSize = BitConverter.ToUInt16(extraField, i + 2);
-
-                        if (headerId == 0x0001)
+                        int offset = 0;
+                        if (uncompressedSize == 0xFFFFFFFF)
                         {
-                            int offset = 0;
-                            if (uncompressedSize == 0xFFFFFFFF)
-                            {
-                                uncompressed = BitConverter.ToInt64(extraField, i + 4 + offset);
-                                offset += 8;
-                            }
-                            if (compressedSize == 0xFFFFFFFF)
-                            {
-                                compressed = BitConverter.ToInt64(extraField, i + 4 + offset);
-                                offset += 8;
-                            }
-                            if (localHeaderOffsetRaw == 0xFFFFFFFF)
-                            {
-                                localHeaderOffset = BitConverter.ToInt64(extraField, i + 4 + offset);
-                                offset += 8;
-                            }
-                            break;
+                            uncompressed = BitConverter.ToInt64(extraField, i + 4 + offset);
+                            offset += 8;
                         }
-
-                        i += 4 + dataSize;
+                        if (compressedSize == 0xFFFFFFFF)
+                        {
+                            compressed = BitConverter.ToInt64(extraField, i + 4 + offset);
+                            offset += 8;
+                        }
+                        if (localHeaderOffsetRaw == 0xFFFFFFFF)
+                        {
+                            localHeaderOffset = BitConverter.ToInt64(extraField, i + 4 + offset);
+                            offset += 8;
+                        }
                     }
+                    // ✅ كشف AES encryption (توقيع 0x9901)
+                    else if (headerId == 0x9901)
+                    {
+                        isAesEncrypted = true;
+                    }
+
+                    i += 4 + dataSize;
                 }
 
                 list.Add(new ZipEntry
@@ -172,6 +175,7 @@ namespace ZipPeek
                     UncompressedSize = uncompressed,
                     LocalHeaderOffset = localHeaderOffset,
                     IsEncrypted = isEncrypted,
+                    IsAesEncrypted = isAesEncrypted,
                     LastModified = lastModified,
                 });
 
