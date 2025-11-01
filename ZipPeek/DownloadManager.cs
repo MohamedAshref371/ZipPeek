@@ -43,7 +43,7 @@ namespace ZipPeek
             }
         }
 
-        public static async Task DownloadWithResumeAsync(string url, string filePath, long start, long end, IProgress<double> progress = null)
+        public static async Task DownloadRangeToFileAsync(string url, string filePath, long start, long end, IProgress<long> progress)
         {
             _cts = new CancellationTokenSource();
             

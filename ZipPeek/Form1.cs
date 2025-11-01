@@ -243,16 +243,25 @@ namespace ZipPeek
                 else
                 {
                     statusLabel.Text = $"⬇️ Downloading: {shortName} ...";
-                    if (entry.CompressedSize > 1 * 1024 * 1024)
+                    if (entry.CompressedSize > 30 * 1024 * 1024)
                     {
                         string sizeInfo = TreeViewHelper.FormatSize(entry.CompressedSize);
                         cancelBtn.Visible = true; isDownload = true;
                         var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
-                        await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "Download", progress, entry.IsEncrypted ? passwordTextBox.Text : null);
+                        var decompressProgress = new Progress<long>(p => statusLabel.Text = $"📦 Decompressing: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
+                        await RemoteZipExtractor.ExtractRemoteEntry2Async(urlTextBox.Text, entry, progress, decompressProgress, entry.IsEncrypted ? passwordTextBox.Text : null);
+                        if (showMessages) cancelBtn.Visible = false; isDownload = false;
+                    }
+                    else if (entry.CompressedSize > 1 * 1024 * 1024)
+                    {
+                        string sizeInfo = TreeViewHelper.FormatSize(entry.CompressedSize);
+                        cancelBtn.Visible = true; isDownload = true;
+                        var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
+                        await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, progress, entry.IsEncrypted ? passwordTextBox.Text : null);
                         if (showMessages) cancelBtn.Visible = false; isDownload = false;
                     }
                     else
-                        await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, "Download", null, entry.IsEncrypted ? passwordTextBox.Text : null);
+                        await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, null, entry.IsEncrypted ? passwordTextBox.Text : null);
                     statusLabel.Text = $"✅ Downloaded: {shortName}";
                 }
             }
