@@ -75,9 +75,11 @@ namespace ZipPeek
         private static async Task<byte[]> FetchRangeAsync(string url, long start, long end)
         {
             _httpClient.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(start, end);
-            var response = await _httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsByteArrayAsync();
+            using (var response = await _httpClient.GetAsync(url))
+            {
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsByteArrayAsync();
+            }
         }
 
         private static int FindSignature(byte[] data, uint signature)

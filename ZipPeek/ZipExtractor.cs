@@ -67,10 +67,12 @@ namespace ZipPeek
                 byte[] fullEncryptedData;
                 if (progress is null)
                 {
-                    var dataRequest = new HttpRequestMessage(HttpMethod.Get, url);
-                    dataRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullStart, fullEnd);
-                    var dataResponse = await client.SendAsync(dataRequest, HttpCompletionOption.ResponseHeadersRead);
-                    fullEncryptedData = await dataResponse.Content.ReadAsByteArrayAsync();
+                    using (var dataRequest = new HttpRequestMessage(HttpMethod.Get, url))
+                    {
+                        dataRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullStart, fullEnd);
+                        using (var dataResponse = await client.SendAsync(dataRequest, HttpCompletionOption.ResponseHeadersRead))
+                            fullEncryptedData = await dataResponse.Content.ReadAsByteArrayAsync();
+                    }
                 }
                 else
                     fullEncryptedData = await DownloadManager.FetchRangeAsync(url, fullStart, fullEnd, progress);
