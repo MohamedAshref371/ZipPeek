@@ -1,7 +1,5 @@
 # ZipPeek v1.8
 
-## About This Project
-
 **ZipPeek** is a Windows desktop application built with C# and WinForms, designed to inspect the contents of remote ZIP files **without downloading the entire archive**.
 
 ### 🎯 Project Goal
@@ -50,3 +48,12 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 - ⚠️ Only **ZipCrypto** encryption is supported. Archives using **AES encryption** are not currently supported.
 - ⚠️ Will not work if the remote server does not support HTTP Range requests.
 - ⚠️ Only standard ZIP format is supported (no split archives, multi-disk, or advanced compression).
+
+<br>
+
+## 🧩 Notes
+- 💭 This project represents a simple idea that I wanted to implement and share.  
+- 🧪 It’s not meant to be a final product, but rather a small technical experiment.  
+- 📂 Everyone is welcome to use, modify, or quote any part of it freely.  
+- 💡 I would be truly happy to hear that someone has created a better and more complete version other than this project.
+
