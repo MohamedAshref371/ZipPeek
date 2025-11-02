@@ -163,11 +163,13 @@ namespace ZipPeek
             long headerEnd = headerStart + LocalHeaderFixedSize + 2048;
 
             // تحميل Local Header إلى مصفوفة بايت صغيرة أولاً
-            var headerRequest = new HttpRequestMessage(HttpMethod.Get, url);
-            headerRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
-            var headerResponse = await client.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead);
-            byte[] headerData = await headerResponse.Content.ReadAsByteArrayAsync();
-
+            byte[] headerData;
+            using (var headerRequest = new HttpRequestMessage(HttpMethod.Get, url))
+            {
+                headerRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
+                using (var headerResponse = await client.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead))
+                    headerData = await headerResponse.Content.ReadAsByteArrayAsync();
+            }
             int sigOffset = FindSignature(headerData, 0x04034b50);
             if (sigOffset < 0)
                 throw new Exception("Local file header not found in downloaded range.");
