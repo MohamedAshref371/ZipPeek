@@ -31,19 +31,6 @@ namespace ZipPeek
             folderSetting.BringToFront();
             folderSetting.Location = new System.Drawing.Point(treeZip.Location.X + (treeZip.Size.Width - folderSetting.Size.Width) / 2, treeZip.Location.Y + 4);
             folderSetting.Visible = false;
-            folderBtn.Click += (s, e) =>
-            {
-                if (folderSetting.Visible)
-                {
-                    folderSetting.Visible = false;
-                    folderBtn.BackgroundImage = Properties.Resources.settingsIcon;
-                }
-                else
-                {
-                    folderBtn.BackgroundImage = Properties.Resources.xIcon;
-                    folderSetting.Visible = true;
-                }
-            };
 
             statusLabel.Text = "Ready.";
         }
@@ -417,12 +404,12 @@ namespace ZipPeek
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Properties.Settings.Default.FailedSkip = FolderSetting.FailedSkip;
-            Properties.Settings.Default.ExistsFileOption = FolderSetting.ExistsFileOption;
-            Properties.Settings.Default.SubfolderOption = FolderSetting.SubfolderOption;
-            Properties.Settings.Default.Save();
-
-            if (isDownload)
+            if (folderSetting.Visible)
+            {
+                FolderBtn_Click(null, null);
+                e.Cancel = true;
+            }
+            else if (isDownload)
             {
                 if (MessageBox.Show("Do you want to stop the download?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     CancelBtn_Click(null, null);
@@ -463,5 +450,25 @@ namespace ZipPeek
             }
             return new long[] { totalCompressedSize , totalUncompressedSize };
         }
+
+        private void FolderBtn_Click(object sender, EventArgs e)
+        {
+            if (folderSetting.Visible)
+            {
+                folderSetting.Visible = false;
+                folderBtn.BackgroundImage = Properties.Resources.settingsIcon;
+
+                Properties.Settings.Default.FailedSkip = FolderSetting.FailedSkip;
+                Properties.Settings.Default.ExistsFileOption = FolderSetting.ExistsFileOption;
+                Properties.Settings.Default.SubfolderOption = FolderSetting.SubfolderOption;
+                Properties.Settings.Default.Save();
+            }
+            else
+            {
+                folderBtn.BackgroundImage = Properties.Resources.xIcon;
+                folderSetting.Visible = true;
+            }
+        }
+
     }
 }

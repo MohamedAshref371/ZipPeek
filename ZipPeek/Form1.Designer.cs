@@ -189,6 +189,7 @@
             this.folderBtn.Size = new System.Drawing.Size(32, 28);
             this.folderBtn.TabIndex = 16;
             this.folderBtn.UseVisualStyleBackColor = false;
+            this.folderBtn.Click += new System.EventHandler(this.FolderBtn_Click);
             // 
             // downBtn
             // 
