@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -75,11 +76,21 @@ namespace ZipPeek
 
         private static async Task<byte[]> FetchRangeAsync(string url, long start, long end)
         {
-            _httpClient.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(start, end);
-            using (var response = await _httpClient.GetAsync(url))
+            using (var request = new HttpRequestMessage(HttpMethod.Get, url))
             {
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsByteArrayAsync();
+                request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(start, end);
+
+                using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+                {
+                    // تحقق أولاً إن السيرفر فعلاً رجع Partial Content
+                    if (response.StatusCode != HttpStatusCode.PartialContent)
+                        throw new InvalidOperationException("Server does not support Range requests.");
+
+                    // بعد كده ضمن نجاح العملية
+                    response.EnsureSuccessStatusCode();
+
+                    return await response.Content.ReadAsByteArrayAsync();
+                }
             }
         }
 
