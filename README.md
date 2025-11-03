@@ -62,8 +62,10 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 
 ZipPeek is built on top of two powerful open-source libraries:
 
-- **[SharpZipLib](https://github.com/icsharpcode/SharpZipLib)**: used for reading ZIP structure, metadata, and supporting traditional **ZipCrypto** decryption.  
-- **[SharpCompress](https://github.com/adamhathcock/sharpcompress)**: used for **AES-encrypted ZIP** file support (128 / 192 / 256-bit).  
+- **[SharpZipLib](https://github.com/icsharpcode/SharpZipLib)**: used for reading ZIP structure, metadata, and supporting traditional **ZipCrypto** decryption.<br>
+  Licensed under the [MIT License](licenses/SharpZipLib-LICENSE.txt)
+- **[SharpCompress](https://github.com/adamhathcock/sharpcompress)**: used for **AES-encrypted ZIP** file support (128 / 192 / 256-bit).<br>
+  Licensed under the [MIT License](licenses/SharpCompress-LICENSE.txt)
 
 Both libraries are licensed under permissive open-source terms, making them ideal for integration in desktop applications.
 
