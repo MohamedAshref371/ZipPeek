@@ -88,7 +88,7 @@ namespace ZipPeek
                 using (var zipStream = new ZipInputStream(inputStream))
                 {
                     zipStream.Password = password;
-                    var zipEntry = zipStream.GetNextEntry() ?? throw new Exception($"⚠️ Could not open encrypted file '{fileName}'. Possibly AES encryption (not supported).");
+                    var zipEntry = zipStream.GetNextEntry() ?? throw new Exception($"⚠️ Could not open encrypted file '{fileName}'.");
                     using (var output = new MemoryStream())
                     {
                         await zipStream.CopyToAsync(output);
@@ -222,7 +222,7 @@ namespace ZipPeek
 
                         var zipEntryFromStream = zipStream.GetNextEntry();
                         if (zipEntryFromStream == null)
-                            throw new Exception($"⚠️ Could not open encrypted file '{fileName}'. Possibly AES or unsupported encryption.");
+                            throw new Exception($"⚠️ Could not open encrypted file '{fileName}'.");
 
                         // إذا المكتبة تكشف AES بطريقة معينة، حاول رمي خطأ واضح
                         if (zipEntryFromStream.AESKeySize > 0)

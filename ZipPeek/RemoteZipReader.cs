@@ -169,7 +169,8 @@ namespace ZipPeek
                             offset += 8;
                         }
                     }
-                    // ✅ كشف AES encryption (توقيع 0x9901)
+
+                    // ✅ AES encryption detection
                     else if (headerId == 0x9901)
                     {
                         isAesEncrypted = true;
