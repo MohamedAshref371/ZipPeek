@@ -223,11 +223,11 @@ namespace ZipPeek
         {
             try
             {
-                if (entry.IsEncrypted && entry.IsAesEncrypted)
+                /*if (entry.IsEncrypted && entry.IsAesEncrypted)
                 {
                     statusLabel.Text = $"❌ Cannot extract 🔒'{shortName}' because it is AES-encrypted.";
                 }
-                else if (entry.IsEncrypted && string.IsNullOrWhiteSpace(passwordTextBox.Text))
+                else */if (entry.IsEncrypted && string.IsNullOrWhiteSpace(passwordTextBox.Text))
                 {
                     statusLabel.Text = "🔒 Password required to extract encrypted file.";
                     if (showMessages) MessageBox.Show("This file is encrypted. Please enter the password.", "Password Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -425,7 +425,7 @@ namespace ZipPeek
             var node = treeZip.SelectedNode;
             if (!downBtn.Enabled || node == null || node.Tag is ZipEntry)
                 return;
-            
+
             long[] totalSize = GetSize(node, e.KeyCode == Keys.F1);
             MessageBox.Show($"Total Compressed Size: {TreeViewHelper.FormatSize(totalSize[0])}\nTotal Uncompressed Size: {TreeViewHelper.FormatSize(totalSize[1])}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -448,7 +448,7 @@ namespace ZipPeek
                     totalUncompressedSize += size[1];
                 }
             }
-            return new long[] { totalCompressedSize , totalUncompressedSize };
+            return new long[] { totalCompressedSize, totalUncompressedSize };
         }
 
         private void FolderBtn_Click(object sender, EventArgs e)

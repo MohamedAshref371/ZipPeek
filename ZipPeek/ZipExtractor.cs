@@ -83,20 +83,47 @@ namespace ZipPeek
                 if (fullEncryptedData.Length < sigOffset + headerTotalLength + encryptionHeaderSize)
                     throw new Exception("Downloaded encrypted data is smaller than expected.");
 
-                // مهم جدًا: لا تقص البيانات، مرر الـ stream بالكامل من بداية الـ LocalHeader
-                using (var inputStream = new MemoryStream(fullEncryptedData, sigOffset, fullEncryptedData.Length - sigOffset))
-                using (var zipStream = new ZipInputStream(inputStream))
+                if (entry.IsAesEncrypted)
                 {
-                    zipStream.Password = password;
-                    var zipEntry = zipStream.GetNextEntry() ?? throw new Exception($"⚠️ Could not open encrypted file '{fileName}'.");
-                    using (var output = new MemoryStream())
+                    using (var inputStream = new MemoryStream(fullEncryptedData, sigOffset, fullEncryptedData.Length - sigOffset))
+                    using (var sharpStream = new SharpCompress.IO.SharpCompressStream(inputStream))
                     {
-                        await zipStream.CopyToAsync(output);
-                        File.WriteAllBytes(outputPath, output.ToArray());
-                        File.SetLastWriteTime(outputPath, entry.LastModified);
+                        // نفتح قارئ ZIP بتمرير كلمة المرور
+                        var options = new SharpCompress.Readers.ReaderOptions
+                        {
+                            Password = password,
+                            LeaveStreamOpen = false
+                        };
+
+                        using (var reader = SharpCompress.Readers.Zip.ZipReader.Open(sharpStream, options))
+                        {
+                            if (!reader.MoveToNextEntry() || reader.Entry.IsDirectory)
+                                throw new Exception($"⚠️ Could not open encrypted file '{fileName}'.");
+
+                            using (var output = new MemoryStream())
+                            {
+                                reader.WriteEntryTo(output);
+                                File.WriteAllBytes(outputPath, output.ToArray());
+                                File.SetLastWriteTime(outputPath, entry.LastModified);
+                            }
+                        }
                     }
                 }
-
+                else
+                {
+                    using (var inputStream = new MemoryStream(fullEncryptedData, sigOffset, fullEncryptedData.Length - sigOffset))
+                    using (var zipStream = new ZipInputStream(inputStream))
+                    {
+                        zipStream.Password = password;
+                        var zipEntry = zipStream.GetNextEntry() ?? throw new Exception($"⚠️ Could not open encrypted file '{fileName}'.");
+                        using (var output = new MemoryStream())
+                        {
+                            await zipStream.CopyToAsync(output);
+                            File.WriteAllBytes(outputPath, output.ToArray());
+                            File.SetLastWriteTime(outputPath, entry.LastModified);
+                        }
+                    }
+                }
                 return;
             }
 
@@ -209,39 +236,66 @@ namespace ZipPeek
                 // تحميل إلى ملف مؤقت على الهارد
                 await DownloadManager.DownloadRangeToFileAsync(url, tempPath, fullStart, fullEnd, progress);
 
-                // افتح الملف المؤقت ومرره إلى ZipInputStream
-                using (var fs = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, useAsync: true))
+                if (entry.IsAesEncrypted)
                 {
-                    // نضع مؤشر القراءة عند بداية local header داخل الملف المؤقت
-                    // داخل الملف المؤقت الموضع الصحيح للـ local header هو (sigOffset) لأننا بدأنا التحميل من headerStart
-                    fs.Seek(sigOffset, SeekOrigin.Begin);
-
-                    using (var zipStream = new ZipInputStream(fs))
+                    using (var fs = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, useAsync: true))
+                    using (var sharpStream = new SharpCompress.IO.SharpCompressStream(fs))
                     {
-                        zipStream.Password = password;
-
-                        var zipEntryFromStream = zipStream.GetNextEntry();
-                        if (zipEntryFromStream == null)
-                            throw new Exception($"⚠️ Could not open encrypted file '{fileName}'.");
-
-                        // إذا المكتبة تكشف AES بطريقة معينة، حاول رمي خطأ واضح
-                        if (zipEntryFromStream.AESKeySize > 0)
-                            throw new Exception($"⚠️ AES-encrypted entries are not supported for file '{fileName}'.");
-
-                        // كتابة المخرجات مباشرة إلى ملف (من الهارد إلى الهارد)
-                        using (var outFs = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
+                        var options = new SharpCompress.Readers.ReaderOptions
                         {
-                            while ((bytesRead = await zipStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                            {
-                                await outFs.WriteAsync(buffer, 0, bytesRead);
-                                totalRead += bytesRead;
-                            }
-                        }
+                            Password = password,
+                            LeaveStreamOpen = false
+                        };
+                        sharpStream.Seek(sigOffset, SeekOrigin.Begin);
 
-                        File.SetLastWriteTime(outputPath, entry.LastModified);
+                        using (var reader = SharpCompress.Readers.Zip.ZipReader.Open(sharpStream, options))
+                        {
+                            if (!reader.MoveToNextEntry() || reader.Entry.IsDirectory)
+                                throw new Exception($"⚠️ Could not open encrypted file '{fileName}'.");
+
+                            using (var entryStream = reader.OpenEntryStream())
+                            using (var outFs = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
+                            {
+                                while ((bytesRead = await entryStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    await outFs.WriteAsync(buffer, 0, bytesRead);
+                                    totalRead += bytesRead;
+                                }
+                            }
+
+                            File.SetLastWriteTime(outputPath, entry.LastModified);
+                        }
                     }
                 }
+                else
+                {
+                    // افتح الملف المؤقت ومرره إلى ZipInputStream
+                    using (var fs = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, useAsync: true))
+                    {
+                        // نضع مؤشر القراءة عند بداية local header داخل الملف المؤقت
+                        // داخل الملف المؤقت الموضع الصحيح للـ local header هو (sigOffset) لأننا بدأنا التحميل من headerStart
+                        fs.Seek(sigOffset, SeekOrigin.Begin);
 
+                        using (var zipStream = new ZipInputStream(fs))
+                        {
+                            zipStream.Password = password;
+
+                            var zipEntryFromStream = zipStream.GetNextEntry() ?? throw new Exception($"⚠️ Could not open encrypted file '{fileName}'.");
+
+                            // كتابة المخرجات مباشرة إلى ملف (من الهارد إلى الهارد)
+                            using (var outFs = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
+                            {
+                                while ((bytesRead = await zipStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    await outFs.WriteAsync(buffer, 0, bytesRead);
+                                    totalRead += bytesRead;
+                                }
+                            }
+
+                            File.SetLastWriteTime(outputPath, entry.LastModified);
+                        }
+                    }
+                }
                 return totalRead;
             }
 
