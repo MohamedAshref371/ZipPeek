@@ -1,9 +1,12 @@
-﻿using System;
+﻿using ICSharpCode.SharpZipLib.Zip;
+using SharpCompress.Archives;
+using SharpCompress.Common;
+using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using ICSharpCode.SharpZipLib.Zip;
 
 namespace ZipPeek
 {
@@ -85,29 +88,7 @@ namespace ZipPeek
 
                 if (entry.IsAesEncrypted)
                 {
-                    using (var inputStream = new MemoryStream(fullEncryptedData, sigOffset, fullEncryptedData.Length - sigOffset))
-                    using (var sharpStream = new SharpCompress.IO.SharpCompressStream(inputStream))
-                    {
-                        // نفتح قارئ ZIP بتمرير كلمة المرور
-                        var options = new SharpCompress.Readers.ReaderOptions
-                        {
-                            Password = password,
-                            LeaveStreamOpen = false
-                        };
-
-                        using (var reader = SharpCompress.Readers.Zip.ZipReader.Open(sharpStream, options))
-                        {
-                            if (!reader.MoveToNextEntry() || reader.Entry.IsDirectory)
-                                throw new Exception($"⚠️ Could not open encrypted file '{fileName}'.");
-
-                            using (var output = new MemoryStream())
-                            {
-                                reader.WriteEntryTo(output);
-                                File.WriteAllBytes(outputPath, output.ToArray());
-                                File.SetLastWriteTime(outputPath, entry.LastModified);
-                            }
-                        }
-                    }
+                    
                 }
                 else
                 {
@@ -238,34 +219,7 @@ namespace ZipPeek
 
                 if (entry.IsAesEncrypted)
                 {
-                    using (var fs = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, useAsync: true))
-                    using (var sharpStream = new SharpCompress.IO.SharpCompressStream(fs))
-                    {
-                        var options = new SharpCompress.Readers.ReaderOptions
-                        {
-                            Password = password,
-                            LeaveStreamOpen = false
-                        };
-                        sharpStream.Seek(sigOffset, SeekOrigin.Begin);
-
-                        using (var reader = SharpCompress.Readers.Zip.ZipReader.Open(sharpStream, options))
-                        {
-                            if (!reader.MoveToNextEntry() || reader.Entry.IsDirectory)
-                                throw new Exception($"⚠️ Could not open encrypted file '{fileName}'.");
-
-                            using (var entryStream = reader.OpenEntryStream())
-                            using (var outFs = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
-                            {
-                                while ((bytesRead = await entryStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                                {
-                                    await outFs.WriteAsync(buffer, 0, bytesRead);
-                                    totalRead += bytesRead;
-                                }
-                            }
-
-                            File.SetLastWriteTime(outputPath, entry.LastModified);
-                        }
-                    }
+                    
                 }
                 else
                 {
