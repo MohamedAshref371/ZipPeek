@@ -187,7 +187,7 @@ namespace ZipPeek
                     UncompressedSize = uncompressed,
                     LocalHeaderOffset = localHeaderOffset,
                     IsEncrypted = isEncrypted,
-                    IsAesEncrypted = isAesEncrypted,
+                    IsAesEncrypted = isEncrypted && isAesEncrypted,
                     LastModified = lastModified,
                 });
 

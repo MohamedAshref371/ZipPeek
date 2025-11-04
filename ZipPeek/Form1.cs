@@ -223,11 +223,11 @@ namespace ZipPeek
         {
             try
             {
-                /*if (entry.IsEncrypted && entry.IsAesEncrypted)
+                if (entry.IsAesEncrypted && (!showMessages || MessageBox.Show("This program cannot extract files encrypted with AES.\nHowever, you can extract them using 7-Zip.org\nWould you like to download the file?", "Question", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Cancel))
                 {
                     statusLabel.Text = $"❌ Cannot extract 🔒'{shortName}' because it is AES-encrypted.";
                 }
-                else */if (entry.IsEncrypted && string.IsNullOrWhiteSpace(passwordTextBox.Text))
+                else if(entry.IsEncrypted && string.IsNullOrWhiteSpace(passwordTextBox.Text))
                 {
                     statusLabel.Text = "🔒 Password required to extract encrypted file.";
                     if (showMessages) MessageBox.Show("This file is encrypted. Please enter the password.", "Password Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -235,7 +235,7 @@ namespace ZipPeek
                 else
                 {
                     statusLabel.Text = $"⬇️ Downloading: {shortName} ...";
-                    if (entry.CompressedSize > 30 * 1024 * 1024)
+                    if (entry.CompressedSize > 30 * 1024 * 1024 || entry.IsAesEncrypted)
                     {
                         string sizeInfo = TreeViewHelper.FormatSize(entry.CompressedSize);
                         cancelBtn.Visible = true; isDownload = true;
