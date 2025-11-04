@@ -56,6 +56,9 @@ namespace ZipPeek
             else if (existingLength > end - start + 1)
                 throw new InvalidOperationException("The file located in the _temp folder is larger than the required range.");
 
+            if (existingLength > 0)
+                progress?.Report(existingLength);
+
             // طلب التحميل من البايت اللي بعد الموجود
             _httpClient.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(start + existingLength, end);
 

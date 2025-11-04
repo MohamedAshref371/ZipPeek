@@ -235,7 +235,7 @@ namespace ZipPeek
                 else
                 {
                     statusLabel.Text = $"⬇️ Downloading: {shortName} ...";
-                    if (entry.CompressedSize > 30 * 1024 * 1024 || entry.IsAesEncrypted)
+                    if (entry.CompressedSize > 10 * 1024 * 1024 || entry.IsAesEncrypted)
                     {
                         string sizeInfo = TreeViewHelper.FormatSize(entry.CompressedSize);
                         cancelBtn.Visible = true; isDownload = true;
