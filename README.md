@@ -31,7 +31,7 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 - 📏 Shows both compressed and uncompressed sizes next to each file.
 - ⚡ Uses HTTP Range Requests to download only the required parts (EOCD + Central Directory).
 - 📥 Supports downloading **individual files or folders** from the ZIP archive remotely with high precision.
-- 🔐 Supports extracting **ZipCrypto-encrypted files** using a user-provided password.
+- 🔐 Supports extracting encrypted ZIP files (both ZipCrypto and AES) using a user-provided password.
 - 🧱 Fully supports **ZIP64 format** (archives larger than 4GB or with more than 65535 entries).
 - 🔍 Built-in **search** functionality with up/down navigation.
 - ↕️ Supports **sorting** files/folders by name, size, or last modified date (asc/desc).
@@ -44,16 +44,15 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 ## ⚠️ Limitations
 
 - ❌ Cannot extract more than one folder or file at the same time.
-- ⚠️ Only **ZipCrypto** encryption is supported. Archives using **AES encryption** are not currently supported.
 - ⚠️ Will not work if the remote server does not support HTTP Range requests.
 - ⚠️ Only standard ZIP format is supported (no split archives, multi-disk, or advanced compression).
 
 <br>
 
 ## 🧩 Notes
-- 💭 This project represents a simple idea that I wanted to implement and share.  
-- 🧪 It’s not meant to be a final product, but rather a small technical experiment.  
-- 📂 Everyone is welcome to use, modify, or quote any part of it freely.  
+- 💭 This project represents a simple idea that I wanted to implement and share.
+- 🧪 It’s not meant to be a final product, but rather a small technical experiment.
+- 📂 Everyone is welcome to use, modify, or quote any part of it freely.
 - 💡 I would be truly happy to hear that someone has created a better and more complete version other than this project.
 
 
@@ -61,7 +60,8 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 
 ## 🛠️ Libraries Used
 
-ZipPeek is built on top of powerful open-source library:
+ZipPeek is built on top of two powerful open-source libraries:
 
 - **[SharpZipLib](https://github.com/icsharpcode/SharpZipLib)** - Licensed under the [MIT License](licenses/SharpZipLib-LICENSE.txt)
+- **[SevenZip](https://sourceforge.net/projects/sevenzip)**: used for **AES-encrypted ZIP** file support (128 / 192 / 256-bit).<br>
 
