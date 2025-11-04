@@ -304,6 +304,7 @@ namespace ZipPeek
         public static string SevenZipPath = @"7zip.org\7z.exe";
         public static void ExtractSingleFile(string archivePath, string fileInsideArchive, string outputDir, string password)
         {
+            if (!File.Exists(SevenZipPath)) return;
             string args = $"x \"{archivePath}\" -o\"{outputDir}\" -p\"{password}\" \"{fileInsideArchive}\" -y";
 
             var process = new Process
