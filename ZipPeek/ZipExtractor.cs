@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -85,7 +86,7 @@ namespace ZipPeek
 
                 if (entry.IsAesEncrypted)
                 {
-                    
+                    // لن يحدث ابدا
                 }
                 else
                 {
@@ -196,10 +197,11 @@ namespace ZipPeek
             // نحدد نطاق التحميل الكامل اعتماداً على ما إذا كان مشفراً أم لا
             // للحالة المشفرة سنبدأ من بداية LocalHeader (headerStart) لنتأكد من وجود كل شيء
             // للحالة غير المشفرة يمكننا البدء من headerStart + sigOffset لاقتصاد نطاق التحميل
-            string tempPath = Path.Combine("_temp", fileName);
+            string tempPath = Path.Combine("_temp", fileName + ".zip");
             Directory.CreateDirectory(Path.GetDirectoryName(tempPath));
 
-            int bytesRead, totalRead = 0;
+            int bytesRead;
+            long totalRead = 0;
             byte[] buffer = new byte[8192];
             if (entry.IsEncrypted)
             {
@@ -216,7 +218,9 @@ namespace ZipPeek
 
                 if (entry.IsAesEncrypted)
                 {
-                    
+                    ExtractSingleFile(tempPath, entry.FileName, "Download", password);
+                    if (File.Exists(outputPath))
+                        totalRead = new FileInfo(outputPath).Length;
                 }
                 else
                 {
@@ -296,5 +300,26 @@ namespace ZipPeek
             }
             return totalRead;
         }
+
+        public static string SevenZipPath = @"7zip.org\7z.exe";
+        public static void ExtractSingleFile(string archivePath, string fileInsideArchive, string outputDir, string password)
+        {
+            string args = $"x \"{archivePath}\" -o\"{outputDir}\" -p\"{password}\" \"{fileInsideArchive}\" -y";
+
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = SevenZipPath, Arguments = args,
+                    RedirectStandardOutput = false, RedirectStandardError = false,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            process.Start();
+            process.WaitForExit();
+        }
+
     }
 }
