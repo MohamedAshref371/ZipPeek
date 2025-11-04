@@ -1,12 +1,9 @@
-﻿using ICSharpCode.SharpZipLib.Zip;
-using SharpCompress.Archives;
-using SharpCompress.Common;
-using System;
+﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace ZipPeek
 {
