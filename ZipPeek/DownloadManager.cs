@@ -75,7 +75,8 @@ namespace ZipPeek
                         await fs.WriteAsync(buffer, 0, bytesRead, _cts.Token);
                         totalRead += bytesRead;
 
-                        progress?.Report(totalRead);
+                        if (totalRead % 163840 == 0)
+                            progress?.Report(totalRead);
                     }
                 }
             }
