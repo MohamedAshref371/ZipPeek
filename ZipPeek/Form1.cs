@@ -244,13 +244,16 @@ namespace ZipPeek
                         long size = await RemoteZipExtractor.ExtractRemoteEntry2Async(urlTextBox.Text, entry, progress, entry.IsEncrypted ? passwordTextBox.Text : null);
                         if (showMessages) cancelBtn.Visible = false; isDownload = false;
                         statusLabel.Text = $"✅ Decompressed: {shortName}  {TreeViewHelper.FormatSize(size)} / {TreeViewHelper.FormatSize(entry.UncompressedSize)}";
-                        //try
-                        //{
-                        //    string fname = entry.FileName.Replace('/', '\\');
-                        //    if (File.Exists(Path.Combine("_temp", fname)) && File.Exists(Path.Combine("Download", fname)))
-                        //        File.Delete(Path.Combine("_temp", fname));
-                        //}
-                        //catch { /* لا نفشل بسبب فشل الحذف */ }
+                        if (entry.CompressedSize < 10 * 1024 * 1024)
+                        {
+                            try
+                            {
+                                string fname = entry.FileName.Replace('/', '\\');
+                                if (File.Exists(Path.Combine("_temp", fname)) && File.Exists(Path.Combine("Download", fname)))
+                                    File.Delete(Path.Combine("_temp", fname));
+                            }
+                            catch { /* لا نفشل بسبب فشل الحذف */ }
+                        }
                     }
                     else if (entry.CompressedSize > 1 * 1024 * 1024)
                     {
