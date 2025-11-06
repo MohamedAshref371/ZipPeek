@@ -12,18 +12,6 @@ namespace ZipPeek
     {
         private static readonly HttpClient client = new HttpClient();
 
-        public static async Task<long> GetRemoteFileSizeAsync(string url)
-        {
-            using (var request = new HttpRequestMessage(HttpMethod.Head, url))
-            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
-            {
-                if (response.IsSuccessStatusCode && response.Content.Headers.ContentLength.HasValue)
-                    return response.Content.Headers.ContentLength.Value;
-
-                return 0;
-            }
-        }
-
         public static async Task ExtractRemoteEntryAsync(string url, ZipEntry entry, IProgress<long> progress, string password = null)
         {
             const int LocalHeaderFixedSize = 30;

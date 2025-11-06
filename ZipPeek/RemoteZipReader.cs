@@ -27,9 +27,21 @@ namespace ZipPeek
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
+        public static async Task<long> GetRemoteFileSizeAsync(string url)
+        {
+            using (var request = new HttpRequestMessage(HttpMethod.Head, url))
+            using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+            {
+                if (response.IsSuccessStatusCode && response.Content.Headers.ContentLength.HasValue)
+                    return response.Content.Headers.ContentLength.Value;
+
+                return 0;
+            }
+        }
+
         public static async Task<long[]> ReadAsync(string url)
         {
-            long fileSize = await RemoteZipExtractor.GetRemoteFileSizeAsync(url);
+            long fileSize = await GetRemoteFileSizeAsync(url);
 
             long footerSize = 256 * 1024 + 22;
             long start = Math.Max(0, fileSize - footerSize);
