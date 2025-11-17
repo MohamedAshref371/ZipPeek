@@ -249,8 +249,8 @@ namespace ZipPeek
                             try
                             {
                                 string fname = entry.FileName.Replace('/', '\\');
-                                if (File.Exists(Path.Combine("_temp", fname)) && File.Exists(Path.Combine("Download", fname)))
-                                    File.Delete(Path.Combine("_temp", fname));
+                                if (File.Exists(Path.Combine("_temp", fname + ".zip")) && File.Exists(Path.Combine("Download", fname)))
+                                    File.Delete(Path.Combine("_temp", fname + ".zip"));
                             }
                             catch { /* لا نفشل بسبب فشل الحذف */ }
                         }
