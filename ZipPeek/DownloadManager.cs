@@ -73,13 +73,18 @@ namespace ZipPeek
                 using (var stream = await response.Content.ReadAsStreamAsync())
                 using (var fs = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, 8192, true))
                 {
+                    int counter = 0;
                     while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts.Token)) > 0)
                     {
                         await fs.WriteAsync(buffer, 0, bytesRead, _cts.Token);
                         totalRead += bytesRead;
 
-                        if (totalRead % 163840 == 0)
+                        if (counter >= 20)
+                        {
                             progress?.Report(totalRead);
+                            counter = 0;
+                        }
+                        else counter++;
                     }
                 }
             }
