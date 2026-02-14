@@ -9,6 +9,7 @@ namespace ZipPeek
     public static class DownloadManager
     {
         private static readonly HttpClient _httpClient = new HttpClient() { Timeout = Timeout.InfiniteTimeSpan };
+        private static readonly System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         private static CancellationTokenSource _cts;
 
         public static async Task<byte[]> FetchRangeAsync(string url, long start, long end, IProgress<long> progress)
@@ -30,19 +31,27 @@ namespace ZipPeek
                     long totalRead = 0;
                     int bytesRead;
 
+                    stopwatch.Start();
+                    long nextReportAt = intervalMs, eMs;
                     while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts.Token)) > 0)
                     {
                         await ms.WriteAsync(buffer, 0, bytesRead, _cts.Token);
                         totalRead += bytesRead;
 
-                        progress?.Report(totalRead);
+                        eMs = stopwatch.ElapsedMilliseconds;
+                        if (eMs >= nextReportAt)
+                        {
+                            progress?.Report(totalRead);
+                            nextReportAt = eMs + intervalMs;
+                        }
                     }
-
+                    stopwatch.Reset();
                     return ms.ToArray();
                 }
             }
         }
 
+        private const int intervalMs = 400;
         public static async Task DownloadRangeToFileAsync(string url, string filePath, long start, long end, IProgress<long> progress)
         {
             _cts = new CancellationTokenSource();
@@ -73,19 +82,21 @@ namespace ZipPeek
                 using (var stream = await response.Content.ReadAsStreamAsync())
                 using (var fs = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, 8192, true))
                 {
-                    int counter = 0;
+                    stopwatch.Start();
+                    long nextReportAt = intervalMs, eMs;
                     while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts.Token)) > 0)
                     {
                         await fs.WriteAsync(buffer, 0, bytesRead, _cts.Token);
                         totalRead += bytesRead;
 
-                        if (counter >= 20)
+                        eMs = stopwatch.ElapsedMilliseconds;
+                        if (eMs >= nextReportAt)
                         {
                             progress?.Report(totalRead);
-                            counter = 0;
+                            nextReportAt = eMs + intervalMs;
                         }
-                        else counter++;
                     }
+                    stopwatch.Reset();
                 }
             }
         }
