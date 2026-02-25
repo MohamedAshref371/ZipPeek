@@ -42,6 +42,7 @@ namespace ZipPeek
         public static async Task<long[]> ReadAsync(string url)
         {
             long fileSize = await GetRemoteFileSizeAsync(url);
+            if (fileSize == 0) throw new Exception("Unable to determine file size.");
 
             long footerSize = 256 * 1024 + 22;
             long start = Math.Max(0, fileSize - footerSize);
