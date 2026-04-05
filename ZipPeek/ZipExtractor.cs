@@ -279,16 +279,16 @@ namespace ZipPeek
                         }
                     }
                 }
-                else if (entry.CompressionMethod == 9 /*Deflate64*/ || entry.CompressionMethod == 12 /*BZip2*/ || entry.CompressionMethod == 14 /*LZMA*/ || entry.CompressionMethod == 93 /*ZSTD🔥*/ )
+                else //if (entry.CompressionMethod == 9 /*Deflate64*/ || entry.CompressionMethod == 12 /*BZip2*/ || entry.CompressionMethod == 14 /*LZMA*/ || entry.CompressionMethod == 93 /*ZSTD🔥*/ )
                 {
                     ExtractSingleFile(tempPath, entry.FileName, "Download");
                     if (File.Exists(outputPath))
                         totalRead = new FileInfo(outputPath).Length;
                 }
-                else
-                {
-                    throw new Exception($"⚠️ Skipping unsupported compression method {entry.CompressionMethod} for file {fileName}");
-                }
+                //else
+                //{
+                //    throw new Exception($"⚠️ Skipping unsupported compression method {entry.CompressionMethod} for file {fileName}");
+                //}
 
                 File.SetLastWriteTime(outputPath, entry.LastModified);
             }
