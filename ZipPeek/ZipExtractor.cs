@@ -279,6 +279,12 @@ namespace ZipPeek
                         }
                     }
                 }
+                else if (entry.CompressionMethod == 9 /*Deflate64*/ || entry.CompressionMethod == 12 /*BZip2*/ || entry.CompressionMethod == 14 /*LZMA*/ || entry.CompressionMethod == 93 /*ZSTD🔥*/ )
+                {
+                    ExtractSingleFile(tempPath, entry.FileName, "Download");
+                    if (File.Exists(outputPath))
+                        totalRead = new FileInfo(outputPath).Length;
+                }
                 else
                 {
                     throw new Exception($"⚠️ Skipping unsupported compression method {entry.CompressionMethod} for file {fileName}");
@@ -290,10 +296,15 @@ namespace ZipPeek
         }
 
         public static string SevenZipPath = @"7zip.org\7z.exe";
-        public static void ExtractSingleFile(string archivePath, string fileInsideArchive, string outputDir, string password)
+        public static void ExtractSingleFile(string archivePath, string fileInsideArchive, string outputDir, string password = null)
         {
             if (!File.Exists(SevenZipPath)) return;
-            string args = $"x \"{archivePath}\" -o\"{outputDir}\" -p\"{password}\" \"{fileInsideArchive}\" -y";
+
+            string args;
+            if (password is null)
+                args = $"x \"{archivePath}\" -o\"{outputDir}\" \"{fileInsideArchive}\" -y";
+            else
+                args = $"x \"{archivePath}\" -o\"{outputDir}\" -p\"{password}\" \"{fileInsideArchive}\" -y";
 
             var process = new Process
             {
