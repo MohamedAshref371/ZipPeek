@@ -1,4 +1,4 @@
-# ZipPeek v1.9
+# ZipPeek v2.0
 
 **ZipPeek** is a Windows desktop application built with C# and WinForms, designed to inspect the contents of remote ZIP files **without downloading the entire archive**.
 
@@ -63,5 +63,5 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 ZipPeek is built on top of two powerful open-source libraries:
 
 - **[SharpZipLib](https://github.com/icsharpcode/SharpZipLib)** - Licensed under the [MIT License](licenses/SharpZipLib-LICENSE.txt)
-- **[SevenZip](https://sourceforge.net/projects/sevenzip)**: used for **AES-encrypted ZIP** file support (128 / 192 / 256-bit).<br>
+- **[SevenZip](https://sourceforge.net/projects/sevenzip)** - Licensed under the [MIT License](licenses/7Zip-LICENSE.txt)<br>
 
