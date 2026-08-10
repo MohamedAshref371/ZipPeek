@@ -16,7 +16,18 @@ namespace ZipPeek
             TreeView?.Nodes.Clear();
         }
 
-        public static void AddToTree(ZipEntry entry)
+#warning Very Slow for large ZIPs. Consider using a more efficient data structure or algorithm for building the tree.
+        public static void AddToTree(List<ZipEntry> entries)
+        {
+            TreeView.BeginUpdate();
+            foreach (var entry in entries)
+                AddToTree(entry);
+
+            MarkEmptyFolders(TreeView.Nodes);
+            TreeView.EndUpdate();
+        }
+
+        private static void AddToTree(ZipEntry entry)
         {
             var parts = entry.FileName.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             TreeNodeCollection current = TreeView.Nodes;
@@ -60,7 +71,7 @@ namespace ZipPeek
             }
         }
 
-        public static void MarkEmptyFolders(TreeNodeCollection nodes)
+        private static void MarkEmptyFolders(TreeNodeCollection nodes)
         {
             foreach (TreeNode node in nodes)
             {

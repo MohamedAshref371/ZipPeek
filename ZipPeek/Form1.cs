@@ -91,11 +91,7 @@ namespace ZipPeek
                 statusLabel.Text = "🌲 Building file tree...";
                 Application.DoEvents();
 
-                treeZip.BeginUpdate();
-                foreach (var entry in entries)
-                    TreeViewHelper.AddToTree(entry);
-                TreeViewHelper.MarkEmptyFolders(treeZip.Nodes);
-                treeZip.EndUpdate();
+                TreeViewHelper.AddToTree(entries);
 
                 statusLabel.Text = $"✅ Loaded {entries.Count:N0} file{(entries.Count == 1 ? "" : "s")}.";
             }
