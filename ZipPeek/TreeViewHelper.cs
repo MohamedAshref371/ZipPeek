@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -20,11 +21,13 @@ namespace ZipPeek
         public static void AddToTree(List<ZipEntry> entries)
         {
             TreeView.BeginUpdate();
+
             foreach (var entry in entries)
                 AddToTree(entry);
 
             MarkEmptyFolders(TreeView.Nodes);
-            TreeView.EndUpdate();
+
+            TreeView.EndUpdate(); // This line takes 75% of the time.
         }
 
         private static void AddToTree(ZipEntry entry)
