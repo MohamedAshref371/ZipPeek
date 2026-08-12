@@ -63,7 +63,7 @@ namespace ZipPeek
             {
                 startAndSize = await RemoteZipReader.ReadAsync(urlTextBox.Text);
 
-                string sizeInfo = TreeViewHelper.FormatSize(startAndSize[1]);
+                string sizeInfo = FormatSize(startAndSize[1]);
                 if (startAndSize[1] > 7 * 1024 * 1024 && MessageBox.Show($"About {sizeInfo} of metadata needs to be downloaded.", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2) == DialogResult.Cancel)
                 {
                     statusLabel.Text = "⛔ Metadata download canceled by user.";
@@ -75,7 +75,7 @@ namespace ZipPeek
                 if (startAndSize[1] > 1 * 1024 * 1024)
                 {
                     cancelBtn.Visible = true; isDownload = true;
-                    var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading metadata...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
+                    var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading metadata...  {FormatSize(p)} / {sizeInfo}");
                     entries = await RemoteZipReader.ReadZipEntriesAsync(urlTextBox.Text, startAndSize[0], startAndSize[1], progress);
                     cancelBtn.Visible = false; isDownload = false;
                 }
@@ -233,13 +233,13 @@ namespace ZipPeek
                     statusLabel.Text = $"⬇️ Downloading: {shortName} ...";
                     if (entry.CompressedSize > 10 * 1024 * 1024 || entry.IsAesEncrypted || entry.CompressionMethod != 0 && entry.CompressionMethod != 8)
                     {
-                        string sizeInfo = TreeViewHelper.FormatSize(entry.CompressedSize);
+                        string sizeInfo = FormatSize(entry.CompressedSize);
                         cancelBtn.Visible = true; isDownload = true;
-                        var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
+                        var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading: {shortName} ...  {FormatSize(p)} / {sizeInfo}");
                         //var decompressProgress = new Progress<long>(p => statusLabel.Text = $"📦 Decompressing: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {TreeViewHelper.FormatSize(entry.UncompressedSize)}");
                         long size = await RemoteZipExtractor.ExtractRemoteEntry2Async(urlTextBox.Text, entry, progress, entry.IsEncrypted ? passwordTextBox.Text : null);
                         if (showMessages) cancelBtn.Visible = false; isDownload = false;
-                        statusLabel.Text = $"✅ Decompressed: {shortName}  {TreeViewHelper.FormatSize(size)} / {TreeViewHelper.FormatSize(entry.UncompressedSize)}";
+                        statusLabel.Text = $"✅ Decompressed: {shortName}  {FormatSize(size)} / {FormatSize(entry.UncompressedSize)}";
                         if (entry.CompressedSize < 10 * 1024 * 1024)
                         {
                             try
@@ -253,9 +253,9 @@ namespace ZipPeek
                     }
                     else if (entry.CompressedSize > 1 * 1024 * 1024)
                     {
-                        string sizeInfo = TreeViewHelper.FormatSize(entry.CompressedSize);
+                        string sizeInfo = FormatSize(entry.CompressedSize);
                         cancelBtn.Visible = true; isDownload = true;
-                        var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading: {shortName} ...  {TreeViewHelper.FormatSize(p)} / {sizeInfo}");
+                        var progress = new Progress<long>(p => statusLabel.Text = $"📥 Downloading: {shortName} ...  {FormatSize(p)} / {sizeInfo}");
                         await RemoteZipExtractor.ExtractRemoteEntryAsync(urlTextBox.Text, entry, progress, entry.IsEncrypted ? passwordTextBox.Text : null);
                         if (showMessages) cancelBtn.Visible = false; isDownload = false;
                         statusLabel.Text = $"✅ Downloaded: {shortName}";
@@ -401,6 +401,19 @@ namespace ZipPeek
             statusLabel.Text = $"🔃 Sorted by {sortList.SelectedItem}";
         }
 
+        public static string FormatSize(long bytes)
+        {
+            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+            double len = bytes;
+            int order = 0;
+            while (len >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                len /= 1024;
+            }
+            return $"{len:0.##} {sizes[order]}";
+        }
+
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (folderSetting.Visible)
@@ -426,7 +439,7 @@ namespace ZipPeek
                 return;
 
             long[] totalSize = GetSize(node, e.KeyCode == Keys.F1);
-            MessageBox.Show($"Total Compressed Size: {TreeViewHelper.FormatSize(totalSize[0])}\nTotal Uncompressed Size: {TreeViewHelper.FormatSize(totalSize[1])}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"Total Compressed Size: {FormatSize(totalSize[0])}\nTotal Uncompressed Size: {FormatSize(totalSize[1])}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private long[] GetSize(TreeNode node, bool withSubfolders)

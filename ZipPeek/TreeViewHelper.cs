@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -9,11 +8,11 @@ namespace ZipPeek
     public static class TreeViewHelper
     {
         public static TreeView TreeView;
-        private static readonly Dictionary<string, TreeNode> NodeCache = new Dictionary<string, TreeNode>();
+        private static readonly Dictionary<string, TreeNode> nodeCache = new Dictionary<string, TreeNode>();
 
         public static void Reset()
         {
-            NodeCache.Clear();
+            nodeCache.Clear();
             TreeView?.Nodes.Clear();
         }
 
@@ -43,7 +42,7 @@ namespace ZipPeek
                 bool isFolder = entry.FileName.EndsWith("/") && isLast;
                 pathSoFar = (pathSoFar == "") ? part : $"{pathSoFar}/{part}";
 
-                if (NodeCache.TryGetValue(pathSoFar, out TreeNode found))
+                if (nodeCache.TryGetValue(pathSoFar, out TreeNode found))
                 {
                     current = found.Nodes;
                     continue;
@@ -51,8 +50,8 @@ namespace ZipPeek
 
                 if (!isFolder && isLast)
                 {
-                    string compressed = FormatSize(entry.CompressedSize);
-                    string uncompressed = FormatSize(entry.UncompressedSize);
+                    string compressed = Form1.FormatSize(entry.CompressedSize);
+                    string uncompressed = Form1.FormatSize(entry.UncompressedSize);
                     string modified = entry.LastModified.ToString("yyyy-MM-dd HH:mm");
                     string icon = entry.IsEncrypted ? "🔒📄" : "📄";
                     displayName = $"{icon} {part} ({compressed} / {uncompressed}) | {modified}";
@@ -69,7 +68,7 @@ namespace ZipPeek
                 };
 
                 current.Add(newNode);
-                NodeCache[pathSoFar] = newNode;
+                nodeCache[pathSoFar] = newNode;
                 current = newNode.Nodes;
             }
         }
@@ -86,19 +85,6 @@ namespace ZipPeek
                         MarkEmptyFolders(node.Nodes);
                 }
             }
-        }
-
-        public static string FormatSize(long bytes)
-        {
-            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-            double len = bytes;
-            int order = 0;
-            while (len >= 1024 && order < sizes.Length - 1)
-            {
-                order++;
-                len /= 1024;
-            }
-            return $"{len:0.##} {sizes[order]}";
         }
 
         public static void SearchByName(List<TreeNode> matches, string keyword, bool ignoreCase = true)
