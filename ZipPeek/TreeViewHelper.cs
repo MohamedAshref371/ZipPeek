@@ -155,6 +155,7 @@ namespace ZipPeek
 
             treeView.SelectedNode = node;
             node.EnsureVisible();
+            treeView.Focus();
         }
 
         private static TreeNode FindNode(TreeNodeCollection nodes, string name)

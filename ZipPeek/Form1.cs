@@ -341,7 +341,6 @@ namespace ZipPeek
             TreeViewHelper.SelectNode(zipEntryList[index]);
 
             statusLabel.Text = $"🔍 Match {index + 1} of {zipEntryList.Count}";
-            treeZip.Focus();
         }
 
         private void UpBtn_Click(object sender, EventArgs e)
@@ -418,36 +417,40 @@ namespace ZipPeek
 
         private void TreeZip_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode != Keys.F1 && e.KeyCode != Keys.F2)
+            if (e.KeyCode != Keys.F1 && e.KeyCode != Keys.F2 || !downBtn.Enabled)
                 return;
 
             var node = treeZip.SelectedNode;
-            if (!downBtn.Enabled || node == null || node.Tag is ZipEntry)
+            if (node == null || node.Tag is ZipEntry)
                 return;
 
-            long[] totalSize = GetSize(node, e.KeyCode == Keys.F1);
-            MessageBox.Show($"Total Compressed Size: {FormatSize(totalSize[0])}\nTotal Uncompressed Size: {FormatSize(totalSize[1])}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            bool withSubfolders = e.KeyCode == Keys.F1;
+            (long compressed, long uncompressed) = GetSize(node, e.KeyCode == Keys.F1);
+            MessageBox.Show($"{(withSubfolders ? "** Subfolders included **" : "-- Subfolders excluded --")}\nTotal Compressed Size: {FormatSize(compressed)}\nTotal Uncompressed Size: {FormatSize(uncompressed)}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private long[] GetSize(TreeNode node, bool withSubfolders)
+        private (long compressed, long uncompressed) GetSize(TreeNode node, bool withSubfolders)
         {
-            long totalCompressedSize = 0;
-            long totalUncompressedSize = 0;
-            for (int i = 0; i < node.Nodes.Count; i++)
+            long compressed = 0, uncompressed = 0;
+
+            IEnumerable<TreeNode> nodes = node.Tag is List<TreeNode> list ? list : node.Nodes.Cast<TreeNode>();
+
+            foreach (TreeNode child in nodes)
             {
-                if (node.Nodes[i].Tag is ZipEntry entry)
+                if (child.Tag is ZipEntry entry)
                 {
-                    totalCompressedSize += entry.CompressedSize;
-                    totalUncompressedSize += entry.UncompressedSize;
+                    compressed += entry.CompressedSize;
+                    uncompressed += entry.UncompressedSize;
                 }
                 else if (withSubfolders)
                 {
-                    long[] size = GetSize(node.Nodes[i], true);
-                    totalCompressedSize += size[0];
-                    totalUncompressedSize += size[1];
+                    var size = GetSize(child, true);
+                    compressed += size.compressed;
+                    uncompressed += size.uncompressed;
                 }
             }
-            return new long[] { totalCompressedSize, totalUncompressedSize };
+
+            return (compressed, uncompressed);
         }
 
         private void FolderBtn_Click(object sender, EventArgs e)
