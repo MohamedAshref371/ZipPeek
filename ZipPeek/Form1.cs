@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ namespace ZipPeek
         public Form1()
         {
             InitializeComponent();
-            TreeViewHelper.TreeView = treeZip;
+            TreeViewHelper.Start(treeZip);
 
             string[] versionParts = Application.ProductVersion.Split('.');
             Array.Resize(ref versionParts, 2);
@@ -52,7 +51,6 @@ namespace ZipPeek
 
             TreeViewHelper.Reset();
             sortList.SelectedIndex = -1;
-            sortingFeatureEnabled = false;
             currentKeyword = "";
             SetUiState(false);
             statusLabel.Text = "📡 Connecting... downloading central directory...";
@@ -304,7 +302,7 @@ namespace ZipPeek
         }
 
         string currentKeyword = "";
-        private readonly List<TreeNode> treeNodeList = new List<TreeNode>();
+        private readonly List<string> zipEntryList = new List<string>();
         int index;
         private void Search(bool up)
         {
@@ -318,33 +316,31 @@ namespace ZipPeek
             if (currentKeyword != keyword)
             {
                 currentKeyword = keyword;
-                TreeViewHelper.SearchByName(treeNodeList, keyword);
+                TreeViewHelper.SearchByName(zipEntryList, keyword);
                 index = up ? 1 : -1;
 
-                if (treeNodeList.Count == 0)
+                if (zipEntryList.Count == 0)
                 {
                     statusLabel.Text = "🔍 No matches found.";
                     return;
                 }
 
-                statusLabel.Text = $"🔍 Found {treeNodeList.Count} match{(treeNodeList.Count == 1 ? "" : "es")}.";
+                statusLabel.Text = $"🔍 Found {zipEntryList.Count} match{(zipEntryList.Count == 1 ? "" : "es")}.";
             }
 
-            if (treeNodeList.Count == 0) return;
+            if (zipEntryList.Count == 0) return;
 
             // تحريك الفهرس
             index += up ? -1 : 1;
 
             // تدوير الفهرس
-            if (index < 0) index = treeNodeList.Count - 1;
-            if (index >= treeNodeList.Count) index = 0;
+            if (index < 0) index = zipEntryList.Count - 1;
+            if (index >= zipEntryList.Count) index = 0;
 
             // تحديد النود
-            var selectedNode = treeNodeList[index];
-            treeZip.SelectedNode = selectedNode;
-            selectedNode.EnsureVisible();
+            TreeViewHelper.SelectNode(zipEntryList[index]);
 
-            statusLabel.Text = $"🔍 Match {index + 1} of {treeNodeList.Count}";
+            statusLabel.Text = $"🔍 Match {index + 1} of {zipEntryList.Count}";
             treeZip.Focus();
         }
 
@@ -358,18 +354,10 @@ namespace ZipPeek
             Search(false);
         }
 
-        bool sortingFeatureEnabled = false;
         private void SortList_SelectedIndexChanged(object sender, EventArgs e)
         {
             int idx = sortList.SelectedIndex;
             if (idx < 0) return;
-
-            if (!sortingFeatureEnabled)
-            {
-                foreach (TreeNode root in treeZip.Nodes)
-                    TreeViewHelper.ComputeMetadata(root);
-                sortingFeatureEnabled = true;
-            }
 
             // نحدد معيار الفرز حسب العنصر المحدد
             TreeViewHelper.SortCriteria criteria;
@@ -394,9 +382,7 @@ namespace ZipPeek
             }
 
             // تنفيذ الفرز
-            treeZip.BeginUpdate();
-            TreeViewHelper.SortNodes(treeZip.Nodes, criteria, ascending: idx % 2 == 0);
-            treeZip.EndUpdate();
+            TreeViewHelper.SortNodes(criteria, ascending: idx % 2 == 0);
 
             statusLabel.Text = $"🔃 Sorted by {sortList.SelectedItem}";
         }
