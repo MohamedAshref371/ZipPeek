@@ -358,6 +358,7 @@ namespace ZipPeek
         {
             int idx = sortList.SelectedIndex;
             if (idx < 0) return;
+            currentKeyword = ""; // إعادة تعيين البحث عند تغيير الفرز
 
             // نحدد معيار الفرز حسب العنصر المحدد
             TreeViewHelper.SortCriteria criteria;

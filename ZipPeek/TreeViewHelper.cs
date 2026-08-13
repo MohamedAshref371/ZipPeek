@@ -17,11 +17,9 @@ namespace ZipPeek
             treeView.BeforeExpand += TreeView_BeforeExpand;
         }
 
-        public static void Reset(bool clearZipEntries = true)
+        public static void Reset()
         {
-            if (clearZipEntries) zipEntries.Clear();
-            nodeCache.Clear();
-            mainNode.Clear();
+            zipEntries.Clear();
             paths.Clear();
             treeView?.Nodes.Clear();
         }
@@ -55,7 +53,6 @@ namespace ZipPeek
             zipEntries = entries;
             nodeCache.Clear();
             mainNode.Clear();
-            paths.Clear();
         }
 
         private static void AddToTree(ZipEntry entry)
@@ -113,18 +110,17 @@ namespace ZipPeek
             foreach (ZipEntry entry in zipEntries)
             {
                 string path = entry.FileName.TrimEnd('/');
-
-                paths.Add(path);
-
-                int index = path.LastIndexOf('/');
+                int index = path.IndexOf('/');
 
                 while (index >= 0)
                 {
                     string folder = path.Substring(0, index);
                     paths.Add(folder);
 
-                    index = folder.LastIndexOf('/');
+                    index = path.IndexOf('/', index + 1);
                 }
+
+                paths.Add(path);
             }
         }
 
@@ -184,7 +180,8 @@ namespace ZipPeek
 
         public static void SortNodes(SortCriteria criteria, bool ascending = true)
         {
-            Reset(false);
+            paths.Clear();
+            treeView?.Nodes.Clear();
 
             zipEntries.Sort((a, b) =>
             {
