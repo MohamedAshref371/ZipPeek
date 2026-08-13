@@ -120,7 +120,7 @@ namespace ZipPeek
             SetUiState(false);
             if (node.Tag is ZipEntry entry)
                 await DownloadZipEntry(entry, entry.FileName.Split('/').Last());
-            else if (node.Nodes.Count == 0)
+            else if (node.Tag is List<TreeNode> list && list.Count == 0 || node.Nodes.Count == 0)
                 statusLabel.Text = "⚠️ Selected folder is empty.";
             else if (MessageBox.Show("Do you want to download the folder according to the current settings?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
@@ -144,8 +144,10 @@ namespace ZipPeek
 
         private async Task Download(TreeNode node)
         {
+            IEnumerable<TreeNode> nodes = node.Tag is List<TreeNode> list ? list : node.Nodes.Cast<TreeNode>();
+
             string shortName;
-            for (int i = 0; i < node.Nodes.Count; i++)
+            for (int i = 0; i < nodes.Count(); i++)
             {
                 if (cancelAll)
                 {
@@ -153,7 +155,7 @@ namespace ZipPeek
                     return;
                 }
 
-                if (node.Nodes[i].Tag is ZipEntry entry)
+                if (nodes.ElementAt(i).Tag is ZipEntry entry)
                 {
                     shortName = entry.FileName.Split('/').Last();
                     #region File Exists
@@ -200,12 +202,12 @@ namespace ZipPeek
                 }
                 #region Subfolder Handling
                 else if (FolderSetting.SubfolderOption == 1)
-                    await Download(node.Nodes[i]);
-                else if (FolderSetting.SubfolderOption == 2 && node.Nodes[i].Nodes.Count > 0)
+                    await Download(nodes.ElementAt(i));
+                else if (FolderSetting.SubfolderOption == 2 && nodes.ElementAt(i).Nodes.Count > 0)
                 {
-                    DialogResult res = MessageBox.Show($"Do you want to download the folder: '{node.Nodes[i].Text}' ?", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                    DialogResult res = MessageBox.Show($"Do you want to download the folder: '{nodes.ElementAt(i).Text}' ?", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
                     if (res == DialogResult.Yes)
-                        await Download(node.Nodes[i]);
+                        await Download(nodes.ElementAt(i));
                     else if (res == DialogResult.Cancel)
                         CancelBtn_Click(null, null);
                 }
