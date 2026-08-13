@@ -147,7 +147,7 @@ namespace ZipPeek
             IEnumerable<TreeNode> nodes = node.Tag is List<TreeNode> list ? list : node.Nodes.Cast<TreeNode>();
 
             string shortName;
-            for (int i = 0; i < nodes.Count(); i++)
+            foreach (TreeNode child in nodes)
             {
                 if (cancelAll)
                 {
@@ -155,7 +155,7 @@ namespace ZipPeek
                     return;
                 }
 
-                if (nodes.ElementAt(i).Tag is ZipEntry entry)
+                if (child.Tag is ZipEntry entry)
                 {
                     shortName = entry.FileName.Split('/').Last();
                     #region File Exists
@@ -202,12 +202,12 @@ namespace ZipPeek
                 }
                 #region Subfolder Handling
                 else if (FolderSetting.SubfolderOption == 1)
-                    await Download(nodes.ElementAt(i));
-                else if (FolderSetting.SubfolderOption == 2 && nodes.ElementAt(i).Nodes.Count > 0)
+                    await Download(child);
+                else if (FolderSetting.SubfolderOption == 2 && child.Nodes.Count > 0)
                 {
-                    DialogResult res = MessageBox.Show($"Do you want to download the folder: '{nodes.ElementAt(i).Text}' ?", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                    DialogResult res = MessageBox.Show($"Do you want to download the folder: '{child.Text}' ?", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
                     if (res == DialogResult.Yes)
-                        await Download(nodes.ElementAt(i));
+                        await Download(child);
                     else if (res == DialogResult.Cancel)
                         CancelBtn_Click(null, null);
                 }
