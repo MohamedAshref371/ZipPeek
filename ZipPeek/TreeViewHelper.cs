@@ -17,9 +17,9 @@ namespace ZipPeek
             treeView.BeforeExpand += TreeView_BeforeExpand;
         }
 
-        public static void Reset()
+        public static void Reset(bool clearZipEntries = true)
         {
-            zipEntries.Clear();
+            if (clearZipEntries) zipEntries.Clear();
             nodeCache.Clear();
             mainNode.Clear();
             paths.Clear();
@@ -184,7 +184,7 @@ namespace ZipPeek
 
         public static void SortNodes(SortCriteria criteria, bool ascending = true)
         {
-            Reset();
+            Reset(false);
 
             zipEntries.Sort((a, b) =>
             {
