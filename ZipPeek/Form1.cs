@@ -89,6 +89,7 @@ namespace ZipPeek
                 statusLabel.Text = "🌲 Building file tree...";
                 Application.DoEvents();
 
+                RemoveNonEmptyFolders(entries); // The easiest solution to the problem of incorrect file sorting
                 TreeViewHelper.AddToTree(entries);
 
                 statusLabel.Text = $"✅ Loaded {entries.Count:N0} file{(entries.Count == 1 ? "" : "s")}.";
@@ -106,6 +107,26 @@ namespace ZipPeek
             {
                 SetUiState(true);
             }
+        }
+
+        private static void RemoveNonEmptyFolders(List<ZipEntry> entries)
+        {
+            HashSet<string> foldersWithFiles = new HashSet<string>();
+
+            foreach (ZipEntry entry in entries)
+            {
+                if (!entry.FileName.EndsWith("/"))
+                {
+                    int index = entry.FileName.LastIndexOf('/');
+                    while (index >= 0)
+                    {
+                        foldersWithFiles.Add(entry.FileName.Substring(0, index + 1));
+                        index = entry.FileName.LastIndexOf('/', index - 1);
+                    }
+                }
+            }
+
+            entries.RemoveAll(entry => entry.FileName.EndsWith("/") && foldersWithFiles.Contains(entry.FileName));
         }
 
         private async void DownloadBtn_Click(object sender, EventArgs e)

@@ -187,31 +187,25 @@ namespace ZipPeek
             paths.Clear();
             treeView?.Nodes.Clear();
 
-            zipEntries.Sort((a, b) =>
+            int asc = ascending ? 1 : -1;
+            switch (criteria)
             {
-                int cmp = 0;
+                case SortCriteria.Name:
+                    zipEntries.Sort((a, b) => string.Compare(a.FileName, b.FileName, StringComparison.OrdinalIgnoreCase) * asc);
+                    break;
 
-                switch (criteria)
-                {
-                    case SortCriteria.Name:
-                        cmp = string.Compare(a.FileName, b.FileName, StringComparison.OrdinalIgnoreCase);
-                        break;
+                case SortCriteria.ModifiedTime:
+                    zipEntries.Sort((a, b) => a.LastModified.CompareTo(b.LastModified) * asc);
+                    break;
 
-                    case SortCriteria.ModifiedTime:
-                        cmp = a.LastModified.CompareTo(b.LastModified);
-                        break;
+                case SortCriteria.UncompressedSize:
+                    zipEntries.Sort((a, b) => a.UncompressedSize.CompareTo(b.UncompressedSize) * asc);
+                    break;
 
-                    case SortCriteria.UncompressedSize:
-                        cmp = a.UncompressedSize.CompareTo(b.UncompressedSize);
-                        break;
-
-                    case SortCriteria.CompressedSize:
-                        cmp = a.CompressedSize.CompareTo(b.CompressedSize);
-                        break;
-                }
-
-                return ascending ? cmp : -cmp;
-            });
+                case SortCriteria.CompressedSize:
+                    zipEntries.Sort((a, b) => a.CompressedSize.CompareTo(b.CompressedSize) * asc);
+                    break;
+            }
 
             AddToTree(zipEntries);
         }
