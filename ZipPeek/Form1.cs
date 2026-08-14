@@ -402,21 +402,6 @@ namespace ZipPeek
             return $"{len:0.##} {sizes[order]}";
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (folderSetting.Visible)
-            {
-                FolderBtn_Click(null, null);
-                e.Cancel = true;
-            }
-            else if (isDownload)
-            {
-                if (MessageBox.Show("Do you want to stop the download?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    CancelBtn_Click(null, null);
-                e.Cancel = true;
-            }
-        }
-
         private void TreeZip_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.F1 && e.KeyCode != Keys.F2 || !downBtn.Enabled)
@@ -471,6 +456,21 @@ namespace ZipPeek
             {
                 folderBtn.BackgroundImage = Properties.Resources.xIcon;
                 folderSetting.Visible = true;
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (folderSetting.Visible)
+            {
+                FolderBtn_Click(null, null);
+                e.Cancel = true;
+            }
+            else if (isDownload)
+            {
+                if (MessageBox.Show("Do you want to stop the download?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    CancelBtn_Click(null, null);
+                e.Cancel = true;
             }
         }
 

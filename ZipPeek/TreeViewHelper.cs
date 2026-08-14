@@ -105,6 +105,7 @@ namespace ZipPeek
             }
         }
 
+        #region Search
         private static void CollectPaths()
         {
             foreach (ZipEntry entry in zipEntries)
@@ -170,7 +171,9 @@ namespace ZipPeek
             }
             return null;
         }
+        #endregion
 
+        #region Sorting
         public enum SortCriteria
         {
             Name,
@@ -212,5 +215,6 @@ namespace ZipPeek
 
             AddToTree(zipEntries);
         }
+        #endregion
     }
 }
