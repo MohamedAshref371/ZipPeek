@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace ZipPeek
@@ -191,7 +192,7 @@ namespace ZipPeek
             switch (criteria)
             {
                 case SortCriteria.Name:
-                    zipEntries.Sort((a, b) => a.FileName.Split('/').CompareTo(b.FileName.Split('/')) * asc);
+                    zipEntries.Sort((a, b) => a.FileName.ComparePaths(b.FileName) * asc);
                     break;
 
                 case SortCriteria.ModifiedTime:
@@ -210,15 +211,32 @@ namespace ZipPeek
             AddToTree(zipEntries);
         }
 
-        private static int CompareTo(this string[] a, string[] b)
+        private static int ComparePaths(this string path1, string path2)
         {
-            int len = Math.Min(a.Length, b.Length);
-            for (int i = 0; i < len; i++)
+            int i = 0, j = 0;
+            int len1 = path1.Length, len2 = path2.Length;
+
+            while (i < len1 && j < len2)
             {
-                int cmp = string.Compare(a[i], b[i], StringComparison.OrdinalIgnoreCase);
-                if (cmp != 0) return cmp;
+                char c1 = path1[i]; char c2 = path2[j];
+                bool isSep1 = c1 == '/', isSep2 = c2 == '/';
+
+                if (isSep1 && isSep2)
+                {
+                    i++; j++;
+                    continue;
+                }
+
+                if (isSep1 != isSep2)
+                    return isSep1 ? -1 : 1;
+
+                if (c1 != c2)
+                    return c1 < c2 ? -1 : 1;
+
+                i++; j++;
             }
-            return a.Length.CompareTo(b.Length);
+
+            return (len1 - i).CompareTo(len2 - j);
         }
         #endregion
     }
