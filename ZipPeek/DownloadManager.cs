@@ -55,7 +55,7 @@ namespace ZipPeek
         public static async Task DownloadRangeToFileAsync(string url, string filePath, long start, long end, IProgress<long> progress)
         {
             _cts = new CancellationTokenSource();
-            
+
             long existingLength = 0;
             if (File.Exists(filePath))
                 existingLength = new FileInfo(filePath).Length;

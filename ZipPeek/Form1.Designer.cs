@@ -34,14 +34,14 @@
             this.ofd = new System.Windows.Forms.OpenFileDialog();
             this.onlineLoadBtn = new System.Windows.Forms.Button();
             this.downloadBtn = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.passLabel = new System.Windows.Forms.Label();
             this.passwordTextBox = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.urlLabel = new System.Windows.Forms.Label();
             this.statusLabel = new System.Windows.Forms.Label();
             this.searchTextBox = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
+            this.searchLabel = new System.Windows.Forms.Label();
             this.sortList = new System.Windows.Forms.ComboBox();
-            this.label4 = new System.Windows.Forms.Label();
+            this.sortLabel = new System.Windows.Forms.Label();
             this.folderBtn = new System.Windows.Forms.Button();
             this.downBtn = new System.Windows.Forms.Button();
             this.upBtn = new System.Windows.Forms.Button();
@@ -68,7 +68,8 @@
             // 
             // ofd
             // 
-            this.ofd.Filter = "ZIP Files|*.zip";
+            this.ofd.FileName = "cookies.txt";
+            this.ofd.Filter = "Text Files|*.txt";
             // 
             // onlineLoadBtn
             // 
@@ -92,15 +93,15 @@
             this.downloadBtn.UseVisualStyleBackColor = true;
             this.downloadBtn.Click += new System.EventHandler(this.DownloadBtn_Click);
             // 
-            // label1
+            // passLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.label1.Location = new System.Drawing.Point(12, 538);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(83, 17);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "PassWord : ";
+            this.passLabel.AutoSize = true;
+            this.passLabel.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.passLabel.Location = new System.Drawing.Point(12, 538);
+            this.passLabel.Name = "passLabel";
+            this.passLabel.Size = new System.Drawing.Size(83, 17);
+            this.passLabel.TabIndex = 5;
+            this.passLabel.Text = "PassWord : ";
             // 
             // passwordTextBox
             // 
@@ -109,15 +110,15 @@
             this.passwordTextBox.Size = new System.Drawing.Size(144, 20);
             this.passwordTextBox.TabIndex = 6;
             // 
-            // label2
+            // urlLabel
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.label2.Location = new System.Drawing.Point(12, 510);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(80, 17);
-            this.label2.TabIndex = 7;
-            this.label2.Text = "Direct link : ";
+            this.urlLabel.AutoSize = true;
+            this.urlLabel.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.urlLabel.Location = new System.Drawing.Point(12, 510);
+            this.urlLabel.Name = "urlLabel";
+            this.urlLabel.Size = new System.Drawing.Size(80, 17);
+            this.urlLabel.TabIndex = 7;
+            this.urlLabel.Text = "Direct link : ";
             // 
             // statusLabel
             // 
@@ -137,15 +138,15 @@
             this.searchTextBox.Size = new System.Drawing.Size(266, 24);
             this.searchTextBox.TabIndex = 10;
             // 
-            // label3
+            // searchLabel
             // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.label3.Location = new System.Drawing.Point(12, 13);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(63, 17);
-            this.label3.TabIndex = 13;
-            this.label3.Text = "Search : ";
+            this.searchLabel.AutoSize = true;
+            this.searchLabel.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.searchLabel.Location = new System.Drawing.Point(12, 13);
+            this.searchLabel.Name = "searchLabel";
+            this.searchLabel.Size = new System.Drawing.Size(63, 17);
+            this.searchLabel.TabIndex = 13;
+            this.searchLabel.Text = "Search : ";
             // 
             // sortList
             // 
@@ -167,15 +168,15 @@
             this.sortList.TabIndex = 14;
             this.sortList.SelectedIndexChanged += new System.EventHandler(this.SortList_SelectedIndexChanged);
             // 
-            // label4
+            // sortLabel
             // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.label4.Location = new System.Drawing.Point(497, 13);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(47, 17);
-            this.label4.TabIndex = 15;
-            this.label4.Text = "Sort : ";
+            this.sortLabel.AutoSize = true;
+            this.sortLabel.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.sortLabel.Location = new System.Drawing.Point(497, 13);
+            this.sortLabel.Name = "sortLabel";
+            this.sortLabel.Size = new System.Drawing.Size(47, 17);
+            this.sortLabel.TabIndex = 15;
+            this.sortLabel.Text = "Sort : ";
             // 
             // folderBtn
             // 
@@ -238,16 +239,16 @@
             this.ClientSize = new System.Drawing.Size(800, 569);
             this.Controls.Add(this.cancelBtn);
             this.Controls.Add(this.folderBtn);
-            this.Controls.Add(this.label4);
+            this.Controls.Add(this.sortLabel);
             this.Controls.Add(this.sortList);
-            this.Controls.Add(this.label3);
+            this.Controls.Add(this.searchLabel);
             this.Controls.Add(this.downBtn);
             this.Controls.Add(this.upBtn);
             this.Controls.Add(this.searchTextBox);
             this.Controls.Add(this.statusLabel);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.urlLabel);
             this.Controls.Add(this.passwordTextBox);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.passLabel);
             this.Controls.Add(this.downloadBtn);
             this.Controls.Add(this.onlineLoadBtn);
             this.Controls.Add(this.urlTextBox);
@@ -270,16 +271,16 @@
         private System.Windows.Forms.OpenFileDialog ofd;
         private System.Windows.Forms.Button onlineLoadBtn;
         private System.Windows.Forms.Button downloadBtn;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label passLabel;
         private System.Windows.Forms.TextBox passwordTextBox;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label urlLabel;
         private System.Windows.Forms.Label statusLabel;
         private System.Windows.Forms.TextBox searchTextBox;
         private System.Windows.Forms.Button upBtn;
         private System.Windows.Forms.Button downBtn;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label searchLabel;
         private System.Windows.Forms.ComboBox sortList;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label sortLabel;
         private System.Windows.Forms.Button folderBtn;
         private System.Windows.Forms.Button cancelBtn;
     }

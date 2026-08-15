@@ -10,7 +10,7 @@ namespace ZipPeek
 {
     public static class RemoteZipExtractor
     {
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient _httpClient = new HttpClient();
 
         public static async Task ExtractRemoteEntryAsync(string url, ZipEntry entry, IProgress<long> progress, string password = null)
         {
@@ -23,7 +23,7 @@ namespace ZipPeek
             using (var headerRequest = new HttpRequestMessage(HttpMethod.Get, url))
             {
                 headerRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
-                using (var headerResponse = await client.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead))
+                using (var headerResponse = await _httpClient.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead))
                     headerData = await headerResponse.Content.ReadAsByteArrayAsync();
             }
 
@@ -62,7 +62,7 @@ namespace ZipPeek
                     using (var dataRequest = new HttpRequestMessage(HttpMethod.Get, url))
                     {
                         dataRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullStart, fullEnd);
-                        using (var dataResponse = await client.SendAsync(dataRequest, HttpCompletionOption.ResponseHeadersRead))
+                        using (var dataResponse = await _httpClient.SendAsync(dataRequest, HttpCompletionOption.ResponseHeadersRead))
                             fullEncryptedData = await dataResponse.Content.ReadAsByteArrayAsync();
                     }
                 }
@@ -104,7 +104,7 @@ namespace ZipPeek
                 using (var normalRequest = new HttpRequestMessage(HttpMethod.Get, url))
                 {
                     normalRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullDataStart, fullDataEnd);
-                    using (var normalResponse = await client.SendAsync(normalRequest, HttpCompletionOption.ResponseHeadersRead))
+                    using (var normalResponse = await _httpClient.SendAsync(normalRequest, HttpCompletionOption.ResponseHeadersRead))
                         fullFileData = await normalResponse.Content.ReadAsByteArrayAsync();
                 }
             }
@@ -161,7 +161,7 @@ namespace ZipPeek
             using (var headerRequest = new HttpRequestMessage(HttpMethod.Get, url))
             {
                 headerRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
-                using (var headerResponse = await client.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead))
+                using (var headerResponse = await _httpClient.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead))
                     headerData = await headerResponse.Content.ReadAsByteArrayAsync();
             }
             int sigOffset = FindSignature(headerData, 0x04034b50);

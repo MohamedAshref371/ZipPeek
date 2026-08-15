@@ -7,18 +7,6 @@ using System.Threading.Tasks;
 
 namespace ZipPeek
 {
-    public class ZipEntry
-    {
-        public string FileName { get; set; }
-        public long LocalHeaderOffset { get; set; }
-        public long CompressedSize { get; set; }
-        public long UncompressedSize { get; set; }
-        public ushort CompressionMethod { get; set; }
-        public bool IsEncrypted { get; set; }
-        public bool IsAesEncrypted { get; set; }
-        public DateTime LastModified { get; set; }
-    }
-
     public static class RemoteZipReader
     {
         private const int EOCD_SIZE = 22;
@@ -179,7 +167,6 @@ namespace ZipPeek
                         if (localHeaderOffsetRaw == 0xFFFFFFFF)
                         {
                             localHeaderOffset = BitConverter.ToInt64(extraField, i + 4 + offset);
-                            offset += 8;
                         }
                     }
 
