@@ -419,13 +419,13 @@ namespace ZipPeek
                 return;
 
             bool withSubfolders = e.KeyCode == Keys.F1;
-            (long compressed, long uncompressed) = CalculatingFolderSize(node, e.KeyCode == Keys.F1);
-            MessageBox.Show($"{(withSubfolders ? "** Subfolders included **" : "-- Subfolders excluded --")}\nTotal Compressed Size: {FormatSize(compressed)}\nTotal Uncompressed Size: {FormatSize(uncompressed)}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            (long fileCount, long compressed, long uncompressed) = CalculatingFolderSize(node, e.KeyCode == Keys.F1);
+            MessageBox.Show($"{(withSubfolders ? "** Subfolders included **" : "-- Subfolders excluded --")}\nTotal File Count: {fileCount}\nTotal Compressed Size: {FormatSize(compressed)}\nTotal Uncompressed Size: {FormatSize(uncompressed)}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private (long compressed, long uncompressed) CalculatingFolderSize(TreeNode node, bool withSubfolders)
+        private (long fileCount, long compressed, long uncompressed) CalculatingFolderSize(TreeNode node, bool withSubfolders)
         {
-            long compressed = 0, uncompressed = 0;
+            long count = 0, compressed = 0, uncompressed = 0;
 
             IEnumerable<TreeNode> nodes = node.Tag is List<TreeNode> list ? list : node.Nodes.Cast<TreeNode>();
 
@@ -433,18 +433,20 @@ namespace ZipPeek
             {
                 if (child.Tag is ZipEntry entry)
                 {
+                    count++;
                     compressed += entry.CompressedSize;
                     uncompressed += entry.UncompressedSize;
                 }
                 else if (withSubfolders)
                 {
                     var size = CalculatingFolderSize(child, true);
+                    count += size.fileCount;
                     compressed += size.compressed;
                     uncompressed += size.uncompressed;
                 }
             }
 
-            return (compressed, uncompressed);
+            return (count, compressed, uncompressed);
         }
 
         public static string FormatSize(long bytes)
