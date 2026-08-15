@@ -34,6 +34,27 @@ namespace ZipPeek
             statusLabel.Text = "Ready.";
         }
 
+        #region Read & Download
+        private static void RemoveNonEmptyFolders(List<ZipEntry> entries)
+        {
+            HashSet<string> foldersWithFiles = new HashSet<string>();
+
+            foreach (ZipEntry entry in entries)
+            {
+                if (!entry.FileName.EndsWith("/"))
+                {
+                    int index = entry.FileName.LastIndexOf('/');
+                    while (index >= 0)
+                    {
+                        foldersWithFiles.Add(entry.FileName.Substring(0, index + 1));
+                        index = entry.FileName.LastIndexOf('/', index - 1);
+                    }
+                }
+            }
+
+            entries.RemoveAll(entry => entry.FileName.EndsWith("/") && foldersWithFiles.Contains(entry.FileName));
+        }
+
         bool isDownload;
         private async void OnlineLoadBtn_Click(object sender, EventArgs e)
         {
@@ -109,26 +130,6 @@ namespace ZipPeek
             }
         }
 
-        private static void RemoveNonEmptyFolders(List<ZipEntry> entries)
-        {
-            HashSet<string> foldersWithFiles = new HashSet<string>();
-
-            foreach (ZipEntry entry in entries)
-            {
-                if (!entry.FileName.EndsWith("/"))
-                {
-                    int index = entry.FileName.LastIndexOf('/');
-                    while (index >= 0)
-                    {
-                        foldersWithFiles.Add(entry.FileName.Substring(0, index + 1));
-                        index = entry.FileName.LastIndexOf('/', index - 1);
-                    }
-                }
-            }
-
-            entries.RemoveAll(entry => entry.FileName.EndsWith("/") && foldersWithFiles.Contains(entry.FileName));
-        }
-
         private async void DownloadBtn_Click(object sender, EventArgs e)
         {
             var node = treeZip.SelectedNode;
@@ -152,15 +153,6 @@ namespace ZipPeek
                 cancelBtn.Visible = false;
             }
             SetUiState(true);
-        }
-
-        bool cancelAll = false;
-        private void CancelBtn_Click(object sender, EventArgs e)
-        {
-            cancelAll = true;
-            cancelBtn.Visible = false;
-            if (isDownload)
-                DownloadManager.CancelFetch();
         }
 
         private async Task Download(TreeNode node)
@@ -299,6 +291,15 @@ namespace ZipPeek
             }
         }
 
+        bool cancelAll = false;
+        private void CancelBtn_Click(object sender, EventArgs e)
+        {
+            cancelAll = true;
+            cancelBtn.Visible = false;
+            if (isDownload)
+                DownloadManager.CancelFetch();
+        }
+
         private void SetUiState(bool enabled)
         {
             onlineLoadBtn.Enabled = enabled;
@@ -318,12 +319,9 @@ namespace ZipPeek
                 isDownload = false;
             }
         }
+        #endregion
 
-        private void StatusLabel_DoubleClick(object sender, EventArgs e)
-        {
-            Process.Start("https://github.com/MohamedAshref371/ZipPeek/releases/latest");
-        }
-
+        #region Search & Sort
         string currentKeyword = "";
         private readonly List<string> zipEntryList = new List<string>();
         int index;
@@ -409,19 +407,7 @@ namespace ZipPeek
 
             statusLabel.Text = $"🔃 Sorted by {sortList.SelectedItem}";
         }
-
-        public static string FormatSize(long bytes)
-        {
-            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-            double len = bytes;
-            int order = 0;
-            while (len >= 1024 && order < sizes.Length - 1)
-            {
-                order++;
-                len /= 1024;
-            }
-            return $"{len:0.##} {sizes[order]}";
-        }
+        #endregion
 
         private void TreeZip_KeyUp(object sender, KeyEventArgs e)
         {
@@ -433,11 +419,11 @@ namespace ZipPeek
                 return;
 
             bool withSubfolders = e.KeyCode == Keys.F1;
-            (long compressed, long uncompressed) = GetSize(node, e.KeyCode == Keys.F1);
+            (long compressed, long uncompressed) = CalculatingFolderSize(node, e.KeyCode == Keys.F1);
             MessageBox.Show($"{(withSubfolders ? "** Subfolders included **" : "-- Subfolders excluded --")}\nTotal Compressed Size: {FormatSize(compressed)}\nTotal Uncompressed Size: {FormatSize(uncompressed)}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private (long compressed, long uncompressed) GetSize(TreeNode node, bool withSubfolders)
+        private (long compressed, long uncompressed) CalculatingFolderSize(TreeNode node, bool withSubfolders)
         {
             long compressed = 0, uncompressed = 0;
 
@@ -452,13 +438,26 @@ namespace ZipPeek
                 }
                 else if (withSubfolders)
                 {
-                    var size = GetSize(child, true);
+                    var size = CalculatingFolderSize(child, true);
                     compressed += size.compressed;
                     uncompressed += size.uncompressed;
                 }
             }
 
             return (compressed, uncompressed);
+        }
+
+        public static string FormatSize(long bytes)
+        {
+            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+            double len = bytes;
+            int order = 0;
+            while (len >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                len /= 1024;
+            }
+            return $"{len:0.##} {sizes[order]}";
         }
 
         private void FolderBtn_Click(object sender, EventArgs e)
@@ -493,6 +492,11 @@ namespace ZipPeek
                     CancelBtn_Click(null, null);
                 e.Cancel = true;
             }
+        }
+
+        private void StatusLabel_DoubleClick(object sender, EventArgs e)
+        {
+            Process.Start("https://github.com/MohamedAshref371/ZipPeek/releases/latest");
         }
 
     }
