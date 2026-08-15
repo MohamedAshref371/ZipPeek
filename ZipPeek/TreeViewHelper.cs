@@ -211,7 +211,7 @@ namespace ZipPeek
             AddToTree(zipEntries);
         }
 
-        private static int ComparePaths(this string path1, string path2) // It does not ignore case.
+        private static int ComparePaths(this string path1, string path2) // Incidental issue: it does not ignore case.
         {
             int i = 0, j = 0;
             int len1 = path1.Length, len2 = path2.Length;
