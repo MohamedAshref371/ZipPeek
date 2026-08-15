@@ -191,7 +191,7 @@ namespace ZipPeek
             switch (criteria)
             {
                 case SortCriteria.Name:
-                    zipEntries.Sort((a, b) => string.Compare(a.FileName, b.FileName, StringComparison.OrdinalIgnoreCase) * asc);
+                    zipEntries.Sort((a, b) => a.FileName.Split('/').CompareTo(b.FileName.Split('/')) * asc);
                     break;
 
                 case SortCriteria.ModifiedTime:
@@ -208,6 +208,17 @@ namespace ZipPeek
             }
 
             AddToTree(zipEntries);
+        }
+
+        private static int CompareTo(this string[] a, string[] b)
+        {
+            int len = Math.Min(a.Length, b.Length);
+            for (int i = 0; i < len; i++)
+            {
+                int cmp = string.Compare(a[i], b[i], StringComparison.OrdinalIgnoreCase);
+                if (cmp != 0) return cmp;
+            }
+            return a.Length.CompareTo(b.Length);
         }
         #endregion
     }
