@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,32 +66,16 @@ namespace ZipPeek
 
         public static async Task<List<ZipEntry>> ReadZipEntriesAsync(string url, long cdStart, long cdSize, IProgress<long> progress)
         {
-            byte[] cdData;
-            if (progress is null)
-                cdData = await FetchRangeAsync(url, cdStart, cdStart + cdSize - 1);
-            else
-                cdData = await DownloadManager.FetchRangeAsync(url, cdStart, cdStart + cdSize - 1, progress);
+            if (cdSize == 0)
+                return new List<ZipEntry>();
+
+            byte[] cdData = await DownloadManager.FetchRangeAsync(url, cdStart, checked(cdStart + cdSize - 1), progress);
             return ParseCentralDirectory(cdData);
         }
 
-        private static async Task<byte[]> FetchRangeAsync(string url, long start, long end)
+        private static Task<byte[]> FetchRangeAsync(string url, long start, long end)
         {
-            using (var request = new HttpRequestMessage(HttpMethod.Get, url))
-            {
-                request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(start, end);
-
-                using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
-                {
-                    // تحقق أولاً إن السيرفر فعلاً رجع Partial Content
-                    if (response.StatusCode != HttpStatusCode.PartialContent)
-                        throw new InvalidOperationException("Server does not support Range requests.");
-
-                    // بعد كده ضمن نجاح العملية
-                    response.EnsureSuccessStatusCode();
-
-                    return await response.Content.ReadAsByteArrayAsync();
-                }
-            }
+            return DownloadManager.FetchRangeAsync(url, start, end, null);
         }
 
         private static int FindSignature(byte[] data, uint signature)

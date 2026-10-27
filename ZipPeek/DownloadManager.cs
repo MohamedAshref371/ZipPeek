@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -8,102 +9,53 @@ namespace ZipPeek
 {
     public static class DownloadManager
     {
-        private static readonly HttpClient _httpClient = new HttpClient() { Timeout = Timeout.InfiniteTimeSpan };
-        private static readonly System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
-        private static CancellationTokenSource _cts;
+        private static readonly HttpClient HttpClient = new HttpClient { Timeout = Timeout.InfiniteTimeSpan };
+        private static readonly RangeDownloader Downloader = new RangeDownloader(HttpClient);
+        private static readonly object SyncRoot = new object();
+        private static readonly HashSet<CancellationTokenSource> ActiveDownloads = new HashSet<CancellationTokenSource>();
 
-        public static async Task<byte[]> FetchRangeAsync(string url, long start, long end, IProgress<long> progress)
+        public static Task<byte[]> FetchRangeAsync(string url, long start, long end, IProgress<long> progress)
         {
-            _cts = new CancellationTokenSource();
-
-            _httpClient.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(start, end);
-
-            using (var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, _cts.Token))
-            {
-                response.EnsureSuccessStatusCode();
-
-                //var totalBytes = response.Content.Headers.ContentLength ?? -1L;
-
-                using (var ms = new MemoryStream())
-                using (var stream = await response.Content.ReadAsStreamAsync())
-                {
-                    var buffer = new byte[8192];
-                    long totalRead = 0;
-                    int bytesRead;
-
-                    stopwatch.Start();
-                    long nextReportAt = intervalMs, eMs;
-                    while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts.Token)) > 0)
-                    {
-                        await ms.WriteAsync(buffer, 0, bytesRead, _cts.Token);
-                        totalRead += bytesRead;
-
-                        eMs = stopwatch.ElapsedMilliseconds;
-                        if (eMs >= nextReportAt)
-                        {
-                            progress?.Report(totalRead);
-                            nextReportAt = eMs + intervalMs;
-                        }
-                    }
-                    stopwatch.Reset();
-                    return ms.ToArray();
-                }
-            }
+            return RunAsync(token => Downloader.FetchRangeAsync(url, start, end, progress, token));
         }
 
-        private const int intervalMs = 400;
         public static async Task DownloadRangeToFileAsync(string url, string filePath, long start, long end, IProgress<long> progress)
         {
-            _cts = new CancellationTokenSource();
-
-            long existingLength = 0;
-            if (File.Exists(filePath))
-                existingLength = new FileInfo(filePath).Length;
-
-            if (existingLength == end - start + 1)
-                return; // الملف مكتمل بالفعل
-            else if (existingLength > end - start + 1)
-                throw new InvalidOperationException("The file located in the _temp folder is larger than the required range.");
-
-            if (existingLength > 0)
-                progress?.Report(existingLength);
-
-            // طلب التحميل من البايت اللي بعد الموجود
-            _httpClient.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(start + existingLength, end);
-
-            using (var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, _cts.Token))
+            await RunAsync(async token =>
             {
-                response.EnsureSuccessStatusCode();
+                await Downloader.DownloadRangeToFileAsync(url, filePath, start, end, progress, token).ConfigureAwait(false);
+                return true;
+            }).ConfigureAwait(false);
+        }
 
-                long totalRead = existingLength;
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-
-                using (var stream = await response.Content.ReadAsStreamAsync())
-                using (var fs = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, 8192, true))
+        private static async Task<T> RunAsync<T>(Func<CancellationToken, Task<T>> operation)
+        {
+            using (var source = new CancellationTokenSource())
+            {
+                lock (SyncRoot)
+                    ActiveDownloads.Add(source);
+                try
                 {
-                    stopwatch.Start();
-                    long nextReportAt = intervalMs, eMs;
-                    while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts.Token)) > 0)
-                    {
-                        await fs.WriteAsync(buffer, 0, bytesRead, _cts.Token);
-                        totalRead += bytesRead;
-
-                        eMs = stopwatch.ElapsedMilliseconds;
-                        if (eMs >= nextReportAt)
-                        {
-                            progress?.Report(totalRead);
-                            nextReportAt = eMs + intervalMs;
-                        }
-                    }
-                    stopwatch.Reset();
+                    return await operation(source.Token).ConfigureAwait(false);
+                }
+                finally
+                {
+                    lock (SyncRoot)
+                        ActiveDownloads.Remove(source);
                 }
             }
         }
 
         public static void CancelFetch()
         {
-            _cts?.Cancel();
+            // Removal and disposal cannot race cancellation.
+            lock (SyncRoot)
+            {
+                var sources = new CancellationTokenSource[ActiveDownloads.Count];
+                ActiveDownloads.CopyTo(sources);
+                foreach (var source in sources)
+                    source.Cancel();
+            }
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
@@ -10,22 +9,13 @@ namespace ZipPeek
 {
     public static class RemoteZipExtractor
     {
-        private static readonly HttpClient _httpClient = new HttpClient();
-
         public static async Task ExtractRemoteEntryAsync(string url, ZipEntry entry, IProgress<long> progress, string password = null)
         {
             const int LocalHeaderFixedSize = 30;
             long headerStart = entry.LocalHeaderOffset;
             long headerEnd = headerStart + LocalHeaderFixedSize + 2048;
 
-            byte[] headerData;
-            // تحميل Local Header
-            using (var headerRequest = new HttpRequestMessage(HttpMethod.Get, url))
-            {
-                headerRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
-                using (var headerResponse = await _httpClient.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead))
-                    headerData = await headerResponse.Content.ReadAsByteArrayAsync();
-            }
+            byte[] headerData = await DownloadManager.FetchRangeAsync(url, headerStart, headerEnd, null);
 
             int sigOffset = FindSignature(headerData, 0x04034b50);
             if (sigOffset < 0)
@@ -56,18 +46,7 @@ namespace ZipPeek
 
                 long fullEnd = fullStart + headerTotalLength + encryptionHeaderSize + entry.CompressedSize + extraBytes - 1;
 
-                byte[] fullEncryptedData;
-                if (progress is null)
-                {
-                    using (var dataRequest = new HttpRequestMessage(HttpMethod.Get, url))
-                    {
-                        dataRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullStart, fullEnd);
-                        using (var dataResponse = await _httpClient.SendAsync(dataRequest, HttpCompletionOption.ResponseHeadersRead))
-                            fullEncryptedData = await dataResponse.Content.ReadAsByteArrayAsync();
-                    }
-                }
-                else
-                    fullEncryptedData = await DownloadManager.FetchRangeAsync(url, fullStart, fullEnd, progress);
+                byte[] fullEncryptedData = await DownloadManager.FetchRangeAsync(url, fullStart, fullEnd, progress);
 
                 if (fullEncryptedData.Length < sigOffset + headerTotalLength + encryptionHeaderSize)
                     throw new Exception("Downloaded encrypted data is smaller than expected.");
@@ -98,18 +77,7 @@ namespace ZipPeek
             long fullDataStart = headerStart + sigOffset;
             long fullDataEnd = fullDataStart + headerTotalLength + entry.CompressedSize + (hasDataDescriptor ? 20 : 0) + 32 - 1;
 
-            byte[] fullFileData;
-            if (progress is null)
-            {
-                using (var normalRequest = new HttpRequestMessage(HttpMethod.Get, url))
-                {
-                    normalRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(fullDataStart, fullDataEnd);
-                    using (var normalResponse = await _httpClient.SendAsync(normalRequest, HttpCompletionOption.ResponseHeadersRead))
-                        fullFileData = await normalResponse.Content.ReadAsByteArrayAsync();
-                }
-            }
-            else
-                fullFileData = await DownloadManager.FetchRangeAsync(url, fullDataStart, fullDataEnd, progress);
+            byte[] fullFileData = await DownloadManager.FetchRangeAsync(url, fullDataStart, fullDataEnd, progress);
 
             if (fullFileData.Length < headerTotalLength + entry.CompressedSize)
                 throw new Exception("Downloaded data is smaller than expected.");
@@ -157,13 +125,7 @@ namespace ZipPeek
             long headerEnd = headerStart + LocalHeaderFixedSize + 2048;
 
             // تحميل Local Header إلى مصفوفة بايت صغيرة أولاً
-            byte[] headerData;
-            using (var headerRequest = new HttpRequestMessage(HttpMethod.Get, url))
-            {
-                headerRequest.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(headerStart, headerEnd);
-                using (var headerResponse = await _httpClient.SendAsync(headerRequest, HttpCompletionOption.ResponseHeadersRead))
-                    headerData = await headerResponse.Content.ReadAsByteArrayAsync();
-            }
+            byte[] headerData = await DownloadManager.FetchRangeAsync(url, headerStart, headerEnd, null);
             int sigOffset = FindSignature(headerData, 0x04034b50);
             if (sigOffset < 0)
                 throw new Exception("Local file header not found in downloaded range.");
