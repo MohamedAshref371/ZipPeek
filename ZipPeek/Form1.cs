@@ -34,6 +34,7 @@ namespace ZipPeek
             folderSetting.Location = new System.Drawing.Point(treeZip.Location.X + (treeZip.Size.Width - folderSetting.Size.Width) / 2, treeZip.Location.Y + 4);
             folderSetting.Visible = false;
 
+            archiveTypeList.SelectedIndex = 0;
             statusLabel.Text = "Ready.";
         }
 

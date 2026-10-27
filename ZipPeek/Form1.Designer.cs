@@ -64,28 +64,32 @@
             // 
             this.urlTextBox.Location = new System.Drawing.Point(98, 507);
             this.urlTextBox.Name = "urlTextBox";
-            this.urlTextBox.Size = new System.Drawing.Size(394, 20);
+            this.urlTextBox.Size = new System.Drawing.Size(458, 20);
             this.urlTextBox.TabIndex = 2;
             this.urlTextBox.Text = "https://github.com/MohamedAshref371/ZipPeek/releases/latest/download/ZipPeek.zip";
-            //
+            // 
             // archiveTypeLabel
-            //
+            // 
             this.archiveTypeLabel.AutoSize = true;
             this.archiveTypeLabel.Font = new System.Drawing.Font("Tahoma", 10F);
             this.archiveTypeLabel.Location = new System.Drawing.Point(498, 510);
             this.archiveTypeLabel.Name = "archiveTypeLabel";
+            this.archiveTypeLabel.Size = new System.Drawing.Size(44, 17);
+            this.archiveTypeLabel.TabIndex = 18;
             this.archiveTypeLabel.Text = "Type:";
-            //
+            this.archiveTypeLabel.Visible = false;
+            // 
             // archiveTypeList
-            //
+            // 
             this.archiveTypeList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.archiveTypeList.FormattingEnabled = true;
-            this.archiveTypeList.Items.AddRange(new object[] { "ZIP", "7z" });
-            this.archiveTypeList.Location = new System.Drawing.Point(542, 506);
+            this.archiveTypeList.Items.AddRange(new object[] {
+            "ZIP",
+            "7z"});
+            this.archiveTypeList.Location = new System.Drawing.Point(562, 506);
             this.archiveTypeList.Name = "archiveTypeList";
-            this.archiveTypeList.Size = new System.Drawing.Size(76, 21);
+            this.archiveTypeList.Size = new System.Drawing.Size(56, 21);
             this.archiveTypeList.TabIndex = 3;
-            this.archiveTypeList.SelectedIndex = 0;
             this.archiveTypeList.SelectedIndexChanged += new System.EventHandler(this.ArchiveTypeList_SelectedIndexChanged);
             // 
             // ofd
