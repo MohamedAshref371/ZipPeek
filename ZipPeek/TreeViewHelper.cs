@@ -76,7 +76,9 @@ namespace ZipPeek
 
                 if (!isFolder && isLast)
                 {
-                    string compressed = Form1.FormatSize(entry.CompressedSize);
+                    string compressed = entry is SevenZipArchiveEntry sevenZipEntry
+                        ? Form1.FormatSize(sevenZipEntry.BlockCompressedSize) + (sevenZipEntry.BlockFileCount > 1 ? " shared block" : "")
+                        : Form1.FormatSize(entry.CompressedSize);
                     string uncompressed = Form1.FormatSize(entry.UncompressedSize);
                     string modified = entry.LastModified.ToString("yyyy-MM-dd HH:mm");
                     string icon = entry.IsEncrypted ? "🔒📄" : "📄";
@@ -203,11 +205,16 @@ namespace ZipPeek
                     break;
 
                 case SortCriteria.CompressedSize:
-                    zipEntries.Sort((a, b) => a.CompressedSize.CompareTo(b.CompressedSize) * asc);
+                    zipEntries.Sort((a, b) => CompressedSizeForSorting(a).CompareTo(CompressedSizeForSorting(b)) * asc);
                     break;
             }
 
             AddToTree(zipEntries);
+        }
+
+        private static long CompressedSizeForSorting(ZipEntry entry)
+        {
+            return entry is SevenZipArchiveEntry sevenZipEntry ? sevenZipEntry.BlockCompressedSize : entry.CompressedSize;
         }
 
         private static int ComparePaths(this string path1, string path2) // Incidental issue: it does not ignore case.

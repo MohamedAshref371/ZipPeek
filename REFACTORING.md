@@ -1,5 +1,9 @@
 # Code maintenance
 
+Remote 7z support is documented in [SEVENZIP.md](SEVENZIP.md). Its HTTP stream,
+native interop, extraction and UI workflow are separate files. ZIP extraction
+continues to use the existing implementation.
+
 The first refactoring isolates HTTP range transfers in `RangeDownloader`.
 `DownloadManager` keeps the existing application API and owns cancellation sources;
 `RemoteZipReader` and `RemoteZipExtractor` delegate range downloads to it.

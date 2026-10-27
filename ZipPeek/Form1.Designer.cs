@@ -31,6 +31,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.treeZip = new System.Windows.Forms.TreeView();
             this.urlTextBox = new System.Windows.Forms.TextBox();
+            this.archiveTypeLabel = new System.Windows.Forms.Label();
+            this.archiveTypeList = new System.Windows.Forms.ComboBox();
             this.ofd = new System.Windows.Forms.OpenFileDialog();
             this.onlineLoadBtn = new System.Windows.Forms.Button();
             this.downloadBtn = new System.Windows.Forms.Button();
@@ -62,9 +64,29 @@
             // 
             this.urlTextBox.Location = new System.Drawing.Point(98, 507);
             this.urlTextBox.Name = "urlTextBox";
-            this.urlTextBox.Size = new System.Drawing.Size(520, 20);
+            this.urlTextBox.Size = new System.Drawing.Size(394, 20);
             this.urlTextBox.TabIndex = 2;
             this.urlTextBox.Text = "https://github.com/MohamedAshref371/ZipPeek/releases/latest/download/ZipPeek.zip";
+            //
+            // archiveTypeLabel
+            //
+            this.archiveTypeLabel.AutoSize = true;
+            this.archiveTypeLabel.Font = new System.Drawing.Font("Tahoma", 10F);
+            this.archiveTypeLabel.Location = new System.Drawing.Point(498, 510);
+            this.archiveTypeLabel.Name = "archiveTypeLabel";
+            this.archiveTypeLabel.Text = "Type:";
+            //
+            // archiveTypeList
+            //
+            this.archiveTypeList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.archiveTypeList.FormattingEnabled = true;
+            this.archiveTypeList.Items.AddRange(new object[] { "ZIP", "7z" });
+            this.archiveTypeList.Location = new System.Drawing.Point(542, 506);
+            this.archiveTypeList.Name = "archiveTypeList";
+            this.archiveTypeList.Size = new System.Drawing.Size(76, 21);
+            this.archiveTypeList.TabIndex = 3;
+            this.archiveTypeList.SelectedIndex = 0;
+            this.archiveTypeList.SelectedIndexChanged += new System.EventHandler(this.ArchiveTypeList_SelectedIndexChanged);
             // 
             // ofd
             // 
@@ -77,7 +99,7 @@
             this.onlineLoadBtn.Location = new System.Drawing.Point(624, 501);
             this.onlineLoadBtn.Name = "onlineLoadBtn";
             this.onlineLoadBtn.Size = new System.Drawing.Size(75, 32);
-            this.onlineLoadBtn.TabIndex = 3;
+            this.onlineLoadBtn.TabIndex = 4;
             this.onlineLoadBtn.Text = "Read";
             this.onlineLoadBtn.UseVisualStyleBackColor = true;
             this.onlineLoadBtn.Click += new System.EventHandler(this.OnlineLoadBtn_Click);
@@ -88,7 +110,7 @@
             this.downloadBtn.Location = new System.Drawing.Point(705, 501);
             this.downloadBtn.Name = "downloadBtn";
             this.downloadBtn.Size = new System.Drawing.Size(83, 32);
-            this.downloadBtn.TabIndex = 4;
+            this.downloadBtn.TabIndex = 5;
             this.downloadBtn.Text = "Download";
             this.downloadBtn.UseVisualStyleBackColor = true;
             this.downloadBtn.Click += new System.EventHandler(this.DownloadBtn_Click);
@@ -252,6 +274,8 @@
             this.Controls.Add(this.downloadBtn);
             this.Controls.Add(this.onlineLoadBtn);
             this.Controls.Add(this.urlTextBox);
+            this.Controls.Add(this.archiveTypeLabel);
+            this.Controls.Add(this.archiveTypeList);
             this.Controls.Add(this.treeZip);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -268,6 +292,8 @@
 
         private System.Windows.Forms.TreeView treeZip;
         private System.Windows.Forms.TextBox urlTextBox;
+        private System.Windows.Forms.Label archiveTypeLabel;
+        private System.Windows.Forms.ComboBox archiveTypeList;
         private System.Windows.Forms.OpenFileDialog ofd;
         private System.Windows.Forms.Button onlineLoadBtn;
         private System.Windows.Forms.Button downloadBtn;

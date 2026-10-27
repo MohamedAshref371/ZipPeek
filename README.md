@@ -1,5 +1,7 @@
 # ZipPeek v2.1
 
+Remote **7z** browsing and extraction are now supported through the native 7-Zip engine. Select ZIP or 7z beside the URL. See [7z setup and download behavior](SEVENZIP.md), including the warning before an entire-archive download.
+
 **ZipPeek** is a Windows desktop application built with C# and WinForms, designed to inspect the contents of remote ZIP files **without downloading the entire archive**.
 
 ### 🎯 Project Goal
@@ -45,7 +47,7 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 
 - ❌ Cannot extract more than one folder or file at the same time.
 - ⚠️ Will not work if the remote server does not support HTTP Range requests.
-- ⚠️ Only standard ZIP format is supported (no split archives, multi-disk, or advanced compression).
+- ⚠️ Standalone ZIP and 7z archives are supported; split and multi-volume archives are not supported.
 
 <br>
 
@@ -63,5 +65,5 @@ ChatGPT acted as a coding assistant, helping with logic, implementation ideas, a
 ZipPeek is built on top of two powerful open-source libraries:
 
 - **[SharpZipLib](https://github.com/icsharpcode/SharpZipLib)** - Licensed under the [MIT License](licenses/SharpZipLib-LICENSE.txt)
-- **[SevenZip](https://sourceforge.net/projects/sevenzip)** - Licensed under the [MIT License](licenses/7Zip-LICENSE.txt)<br>
+- **[7-Zip](https://www.7-zip.org/)** - External native engine; see its [license notice](licenses/7Zip-LICENSE.txt)<br>
 

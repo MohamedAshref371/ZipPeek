@@ -10,12 +10,18 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <AssemblyName>ZipPeek.Tests</AssemblyName>
     <LangVersion>7.3</LangVersion>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
     <Compile Include="DownloadTests.cs" />
+    <Compile Include="SevenZipTests.cs" />
+    <Compile Include="..\ZipPeek\HttpRangeStream.cs"><Link>HttpRangeStream.cs</Link></Compile>
+    <Compile Include="..\ZipPeek\SevenZipNative.cs"><Link>SevenZipNative.cs</Link></Compile>
+    <Compile Include="..\ZipPeek\RemoteSevenZipArchive.cs"><Link>RemoteSevenZipArchive.cs</Link></Compile>
+    <Compile Include="..\ZipPeek\ArchiveExtractCallback.cs"><Link>ArchiveExtractCallback.cs</Link></Compile>
     <Compile Include="..\ZipPeek\RangeDownloader.cs"><Link>RangeDownloader.cs</Link></Compile>
     <Compile Include="..\ZipPeek\DownloadManager.cs"><Link>DownloadManager.cs</Link></Compile>
     <Compile Include="..\ZipPeek\RemoteZipReader.cs"><Link>RemoteZipReader.cs</Link></Compile>

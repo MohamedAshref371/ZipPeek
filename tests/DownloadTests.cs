@@ -13,11 +13,12 @@ internal static class DownloadTests
     private const string Url = "https://example.invalid/archive.zip";
     private static int passed;
 
-    private static int Main()
+    private static int Main(string[] args)
     {
         try
         {
             RunAsync().GetAwaiter().GetResult();
+            if (args.Contains("--sevenzip")) SevenZipTests.RunAsync().GetAwaiter().GetResult();
             Console.WriteLine("Passed " + passed + " download regression checks.");
             return 0;
         }

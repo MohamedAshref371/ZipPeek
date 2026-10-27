@@ -12,6 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -73,6 +74,10 @@
   <ItemGroup>
     <Compile Include="DownloadManager.cs" />
     <Compile Include="RangeDownloader.cs" />
+    <Compile Include="HttpRangeStream.cs" />
+    <Compile Include="SevenZipNative.cs" />
+    <Compile Include="RemoteSevenZipArchive.cs" />
+    <Compile Include="ArchiveExtractCallback.cs" />
     <Compile Include="FolderSetting.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -81,6 +86,9 @@
     </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.SevenZip.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>

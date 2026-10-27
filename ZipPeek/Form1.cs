@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -11,6 +12,8 @@ namespace ZipPeek
     public partial class Form1 : Form
     {
         private readonly FolderSetting folderSetting = new FolderSetting();
+        private RemoteSevenZipArchive sevenZipArchive;
+        private CancellationTokenSource sevenZipCancellation;
 
         public Form1()
         {
@@ -19,7 +22,7 @@ namespace ZipPeek
 
             string[] versionParts = Application.ProductVersion.Split('.');
             Array.Resize(ref versionParts, 2);
-            Text = $"{Application.ProductName} v{string.Join(".", versionParts)} - View ZIP Files Online";
+            Text = $"{Application.ProductName} v{string.Join(".", versionParts)} - View ZIP and 7z Files Online";
 
             FolderSetting.FailedSkip = Properties.Settings.Default.FailedSkip;
             FolderSetting.ExistsFileOption = Properties.Settings.Default.ExistsFileOption;
@@ -56,6 +59,17 @@ namespace ZipPeek
         }
 
         bool isDownload;
+        private void ArchiveTypeList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            sevenZipArchive?.Dispose();
+            sevenZipArchive = null;
+            TreeViewHelper.Reset();
+            zipEntryList.Clear();
+            currentKeyword = "";
+            sortList.SelectedIndex = -1;
+            statusLabel.Text = "Ready.";
+        }
+
         private async void OnlineLoadBtn_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(urlTextBox.Text))
@@ -67,6 +81,12 @@ namespace ZipPeek
             if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
             {
                 statusLabel.Text = "⚠️ No internet connection.";
+                return;
+            }
+
+            if (archiveTypeList.SelectedIndex == 1)
+            {
+                await ReadSevenZipAsync();
                 return;
             }
 
@@ -136,6 +156,12 @@ namespace ZipPeek
             if (node == null)
             {
                 statusLabel.Text = "⚠️ Please select a file to download.";
+                return;
+            }
+
+            if (archiveTypeList.SelectedIndex == 1)
+            {
+                await DownloadSevenZipSelectionAsync(node);
                 return;
             }
 
@@ -296,12 +322,16 @@ namespace ZipPeek
         {
             cancelAll = true;
             cancelBtn.Visible = false;
+            sevenZipCancellation?.Cancel();
             if (isDownload)
                 DownloadManager.CancelFetch();
         }
 
         private void SetUiState(bool enabled)
         {
+            archiveTypeList.Enabled = enabled;
+            urlTextBox.Enabled = enabled;
+            passwordTextBox.Enabled = enabled;
             onlineLoadBtn.Enabled = enabled;
             downloadBtn.Enabled = enabled;
             sortList.Enabled = enabled;
@@ -420,12 +450,14 @@ namespace ZipPeek
 
             bool withSubfolders = e.KeyCode == Keys.F1;
             (long fileCount, long compressed, long uncompressed) = CalculatingFolderSize(node, e.KeyCode == Keys.F1);
-            MessageBox.Show($"{(withSubfolders ? "** Subfolders included **" : "-- Subfolders excluded --")}\nTotal File Count: {fileCount}\nTotal Compressed Size: {FormatSize(compressed)}\nTotal Uncompressed Size: {FormatSize(uncompressed)}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            string compressedLabel = archiveTypeList.SelectedIndex == 1 ? "Required Compressed Blocks" : "Total Compressed Size";
+            MessageBox.Show($"{(withSubfolders ? "** Subfolders included **" : "-- Subfolders excluded --")}\nTotal File Count: {fileCount}\n{compressedLabel}: {FormatSize(compressed)}\nTotal Uncompressed Size: {FormatSize(uncompressed)}", "Folder Size", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private (long fileCount, long compressed, long uncompressed) CalculatingFolderSize(TreeNode node, bool withSubfolders)
+        private (long fileCount, long compressed, long uncompressed) CalculatingFolderSize(TreeNode node, bool withSubfolders, HashSet<long> countedBlocks = null)
         {
             long count = 0, compressed = 0, uncompressed = 0;
+            countedBlocks = countedBlocks ?? new HashSet<long>();
 
             IEnumerable<TreeNode> nodes = node.Tag is List<TreeNode> list ? list : node.Nodes.Cast<TreeNode>();
 
@@ -434,12 +466,16 @@ namespace ZipPeek
                 if (child.Tag is ZipEntry entry)
                 {
                     count++;
-                    compressed += entry.CompressedSize;
+                    if (entry is SevenZipArchiveEntry sevenZipEntry && sevenZipEntry.BlockId.HasValue)
+                    {
+                        if (countedBlocks.Add(sevenZipEntry.BlockId.Value)) compressed += sevenZipEntry.BlockCompressedSize;
+                    }
+                    else compressed += entry.CompressedSize;
                     uncompressed += entry.UncompressedSize;
                 }
                 else if (withSubfolders)
                 {
-                    var size = CalculatingFolderSize(child, true);
+                    var size = CalculatingFolderSize(child, true, countedBlocks);
                     count += size.fileCount;
                     compressed += size.compressed;
                     uncompressed += size.uncompressed;
@@ -493,6 +529,11 @@ namespace ZipPeek
                 if (MessageBox.Show("Do you want to stop the download?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     CancelBtn_Click(null, null);
                 e.Cancel = true;
+            }
+            if (!e.Cancel)
+            {
+                sevenZipArchive?.Dispose();
+                sevenZipArchive = null;
             }
         }
 
